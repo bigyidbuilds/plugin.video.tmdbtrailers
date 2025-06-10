@@ -1,0 +1,221 @@
+# Kodi Media Center language file
+# Addon Name: TMDB Trailers
+# Addon id: plugin.video.tmdbtrailers
+# Addon Provider: BYB
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: alanwww1@kodi.org\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+###settings strings###
+
+msgctxt "#30000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#30001"
+msgid "Event logging"
+msgstr "Event logging"
+
+msgctxt "#30003"
+msgid "Debug"
+msgstr "Debug"
+
+msgctxt "#30004"
+msgid "YouTube"
+msgstr "YouTube"
+
+msgctxt "#30005"
+msgid "API settings"
+msgstr "API settings"
+
+msgctxt "#30006"
+msgid "API Key"
+msgstr "API Key"
+
+msgctxt "#30007"
+msgid "Enter API Key"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Client ID"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Enter Client ID"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Client secret"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Enter Client secret"
+msgstr ""
+
+msgctxt "#30012"
+msgid "TMDB"
+msgstr ""
+
+msgctxt "#30013"
+msgid "API Read Access Token"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Enter API Read Access Token"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Username and password"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Enter username"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Enter password"
+msgstr ""
+
+### addon strings ###
+
+msgctxt "#32000"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#32001"
+msgid "TV Shows"
+msgstr ""
+
+msgctxt "#32002"
+msgid "People"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Now Playing"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Popular"
+msgstr ""
+
+msgctxt "#32005"
+msgid "Top rated"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Upcoming"
+msgstr ""
+
+msgctxt "#32007"
+msgid "Trending"
+msgstr ""
+
+msgctxt "#32008"
+msgid "Airing Today"
+msgstr ""
+
+msgctxt "#32009"
+msgid "On The Air"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Search"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Input search query"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Select search query"
+msgstr ""
+
+msgctxt "#32013"
+msgid "New search query"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Next page"
+msgstr ""
+
+msgctxt "#32015"
+msgid "No Name or label found"
+msgstr ""
+
+msgctxt "#32016"
+msgid "No videos Found"
+msgstr ""
+
+msgctxt "#32017"
+msgid "No videos have been added to {} yet"
+msgstr ""
+
+msgctxt "#32018"
+msgid "My TMDB"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Sign in"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Sign out"
+msgstr ""
+
+msgctxt "#32021"
+msgid "Favorite Movies"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Favorite TV"
+msgstr ""
+
+msgctxt "#32023"
+msgid "Lists"
+msgstr ""
+
+msgctxt "#32024"
+msgid "Rated Movies"
+msgstr ""
+
+msgctxt "#32025"
+msgid "Rated TV"
+msgstr ""
+
+msgctxt "#32026"
+msgid "Watchlist Movies"
+msgstr ""
+
+msgctxt "#32027"
+msgid "Watchlist TV"
+msgstr ""
+
+msgctxt "#32028"
+msgid "Add new list"
+msgstr ""
+
+msgctxt "#32029"
+msgid "Enter name of new list"
+msgstr ""
+
+msgctxt "#32030"
+msgid "Enter description of new list"
+msgstr ""

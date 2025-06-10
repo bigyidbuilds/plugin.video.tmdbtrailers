@@ -1,0 +1,25 @@
+{
+    "movie_search": [],
+    "tv_search": [],
+    "people_search": [],
+    "access": {},
+    "account": {
+        "account_favorite":{
+            "movies":[],
+            "tv":[]
+        },
+        "account_watchlist":{
+            "movies":[],
+            "tv":[]
+        },
+        "account_rated":{
+            "movies":[],
+            "tv":[]
+        },
+        "account_lists":{
+
+        },
+        "account_details":{}
+    },
+    "version":1
+}
