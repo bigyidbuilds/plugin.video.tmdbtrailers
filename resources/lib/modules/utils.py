@@ -33,7 +33,7 @@ def WriteJsonFile(filepath,filename=None,data=None):
 	if xbmcvfs.exists(path):
 		with open(path,'w') as f:
 			json.dump(data,f,indent=4)
-			
+
 
 def ReadJsonFile(filepath,filename=None,key=None):
 	filepath = _translatePath(filepath)
@@ -148,3 +148,15 @@ def Log(msg):
 		from inspect import getframeinfo, stack
 		fileinfo = getframeinfo(stack()[1][0])
 		xbmc.log(f"*__{_AddonInfo(__addon__,'name')}__{_AddonInfo(__addon__,'version')}*{msg} Python file name = {fileinfo.filename} Line Number = {fileinfo.lineno}", level=xbmc.LOGINFO)
+
+def GetListLoop(call,path,page):
+	items = []
+	def func(call,path,page):
+		_data,_page,_pages = call(path,page,listitems=False)
+		for _d in _data:
+			items.append(_d)
+		_page += 1
+		if _page <= _pages:
+			func(call,path,_page)
+	func(call,path,page)
+	return items

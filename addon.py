@@ -11,12 +11,12 @@ import xbmcplugin
 import xbmcvfs
 
 from resources.lib.modules.utils import Log,ListItemFolder,ReadJsonFile,ValidateJsonFile,CheckCreateFile,WriteJsonFile,TimeStamp
-from resources.lib.modules.userjson import UserDataFile,CheckUserAccount,ReadUserDataFile,ClearUserLists,writeUserDataFile
+from resources.lib.modules.userjson import UserDataFile,CheckUserAccount,ReadUserDataFile,ClearUserLists,writeUserDataFile,UserReFreshLists
 from resources.lib.modules._xbmcaddon import _AddonInfo,_AddonLocalStr,_AddonSettings
-from resources.lib._tmdb.tmdb import Tmdb_API
-from resources.lib._tmdb.tmdb_authentication import Tmdb_Authentication
-from resources.lib._tmdb.tmdb_account import Tmdb_Account
-from resources.lib._tmdb import tmdb_registeration
+from resources.lib.modules._tmdb.tmdb import Tmdb_API
+from resources.lib.modules._tmdb.tmdb_authentication import Tmdb_Authentication
+from resources.lib.modules._tmdb.tmdb_account import Tmdb_Account
+from resources.lib.modules._tmdb import tmdb_registeration
 from resources.lib._youtube import youtube as YT
 
 __addon__ = 'plugin.video.tmdbtrailers'
@@ -211,39 +211,9 @@ def tmdbMenu():
 def tmdbSignIn():
 	tmdbauth = Tmdb_Authentication()
 	tmdbauth.SignIn()
-	ClearUserLists()
-	data = ReadUserDataFile()
-	session_details = data.get('access').get(__addon__).get("session_details")
-	tmdbacc = Tmdb_Account(session_details.get('session_id'))
-	accdet = tmdbacc.AccountDetails(writetofile=False)
-	account = data.get('account')
-	account_details = account.get('account_details')
-	account_id = account_details.get('id')
-	account_details.update(accdet)
-	items = [
-	{'path':f'account/{account_id}/favorite/movies','params':account.get('account_favorite').get('movies')},
-	{'path':f'account/{account_id}/favorite/tv','params':account.get('account_favorite').get('tv')},
-	{'path':f'account/{account_id}/rated/movies','params':account.get('account_rated').get('movies')},
-	{'path':f'account/{account_id}/rated/tv','params':account.get('account_rated').get('tv')},
-	{'path':f'account/{account_id}/watchlist/movies','params':account.get('account_watchlist').get('movies')},
-	{'path':f'account/{account_id}/watchlist/tv','params':account.get('account_watchlist').get('tv')}]
-	for i in items: 
-		_data = GetListLoop(tmdbacc.GetList,i.get('path'),1)
-		for _d in _data:
-			i.get('params').append(_d.get('id'))
-	account_lists = account.get('account_lists')
-	for _i in GetListLoop(tmdbacc.GetLists,f'account/{account_id}/lists',1):
-		list_id = _i.get('id')
-		list_data = GetListLoop(tmdbacc.GetListDetails,f'list/{list_id}',1)
-		list_detail = []
-		for list_item in list_data:
-			item_id = list_item.get('id')
-			media_type = list_item.get('media_type')
-			list_detail.append({'media_type':media_type,'id':item_id})
-		account_lists.update({list_id:list_detail})
-
-	writeUserDataFile(data)	
+	UserReFreshLists(favorite=True,rated=True,watchlist=True,lists=True)
 	xbmc.executebuiltin('Container.Refresh')
+	
 
 def tmdbSignOut():
 	tmdbauth = Tmdb_Authentication()
@@ -318,18 +288,6 @@ def tmdbuserCreditianls():
 	session_id = session_details.get('session_id')
 	return account_id,session_id
 
-def GetListLoop(call,path,page):
-	items = []
-	def func(call,path,page):
-		_data,_page,_pages = call(path,page,listitems=False)
-		for _d in _data:
-			items.append(_d)
-		_page += 1
-		if _page <= _pages:
-			func(call,path,_page)
-	func(call,path,page)
-	return items
-
 
 def BuildPluginUrl(query):
 	return addon_url + '?' + urlencode(query)
@@ -341,6 +299,8 @@ if mode == 'addon':
 	if submenu == None:
 		UserDataFile()
 		tmdb_registeration.RegistrateAPIKey(_AddonInfo(__addon__,'profile'),'user.json',__addon__,addon_settings.getString('tmdb.api.key'),addon_settings.getString('tmdb.api.token'))
+		if addon_settings.getBool('tmdb.lists.refresh'):
+			UserReFreshLists(favorite=True,rated=True,watchlist=True,lists=True)
 		Log('Loading Home page')
 		LoadFixedMenu("main")
 	elif submenu and menutype == "fixed":

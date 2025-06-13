@@ -5,7 +5,7 @@ from resources.lib.modules import _xbmcaddon
 from resources.lib.modules import exceptions
 from resources.lib.modules import utils
 
-from resources.lib._tmdb.tmdb_account import Tmdb_Account
+from resources.lib.modules._tmdb.tmdb_account import Tmdb_Account
 
 """
 Sample of path
@@ -43,14 +43,14 @@ class ContextMenu():
 		keys = list(self.sysargv.keys())
 		try:
 			if not self.ValidateSysArgvKeys(keys):
-				raise exceptions.RUNPLUGIN_sysargv_Exception(f'ERROR Incorrect keys in passed sys.argv of run plugin method\n\tmissings keys are\n{set(self.req_keys)-set(keys)}')
+				raise exceptions.RUNPLUGIN_sysargv_keys_Exception(req_keys=self.req_keys,keys=keys)
 			else:
 				self.RunPluginMethod(self.sysargv)
 		except exceptions.RUNPLUGIN_sysargv_Exception as e:
-			utils.Log(e)
+			utils.Log(e.logmessage)
 			return
 		except Exception as exc:
-			utils.Log(e)
+			utils.Log(exc)
 			return
 
 
@@ -67,7 +67,7 @@ class ContextMenu():
 			list_var = [[mode,'mode'],[action,'action'],[media_type,'media_type'],[media_id,'media_id'],[addon_id,'addon_id']]
 			b,missing = ValidateSysArgvVariable(list_var):
 			if not b:
-				raise exceptions.RUNPLUGIN_sysargv_Exception(f'ERROR values missing from sys.argv of run plugin method\n\tMissing values are {missing}')
+				raise exceptions.RUNPLUGIN_sysargv_var_Exception(f'ERROR values missing from sys.argv of run plugin method\n\tMissing values are {missing}')
 			self.tmdbacc = Tmdb_Account()
 			if mode == 'contextmenu' and action == 'add_to_favorites':
 				self.AddFavorites()

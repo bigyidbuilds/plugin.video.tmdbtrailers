@@ -94,7 +94,35 @@ msgctxt "#30019"
 msgid "Enter password"
 msgstr ""
 
-### addon strings ###
+msgctxt "#30020"
+msgid "Refresh tmdb lists at startup"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Account details from TMDB to modifiy these go to https://www.themoviedb.org/settings/account"
+msgstr ""
+
+msgctxt "#30022"
+msgid "id"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Name"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Default Language"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Include Adult Items in Search"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Current Avatar"
+msgstr ""
+
+###---------- addon strings ----------###
 
 msgctxt "#32000"
 msgid "Movies"

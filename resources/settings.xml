@@ -90,6 +90,65 @@
 					</control>
 				</setting>
 			</group>
+			<group id="3" label="30000" help="">
+				<setting id="tmdb.lists.refresh" type="boolean" label="30020" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+			<group id="4" label="30021">
+				<setting id="tmdb.user.id" type="integer" label="30022" help="">
+					<level>0</level>
+					<default>0</default>
+					<enable>false</enable>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="integer">
+						<heading></heading>
+					</control>
+				</setting>
+				<setting id="tmdb.user.name"  type="string" label="30023" help="">
+					<level>0</level>
+					<default/>
+					<enable>false</enable>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading></heading>
+					</control>
+				</setting>
+				<setting id="tmdb.user.defaultlanguage"  type="string" label="30024" help="">
+					<level>0</level>
+					<default/>
+					<enable>false</enable>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading></heading>
+					</control>
+				</setting>
+				<setting id="tmdb.user.adultsearch" type="boolean" label="30025" help="">
+					<level>0</level>
+					<default>false</default>
+					<enable>false</enable>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tmdb.user.avatar" type="string" label="30024" help="">
+					<level>0</level>
+					<default/>
+					<enable>false</enable>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading></heading>
+					</control>
+				</setting>
+			</group>
 		</category>
 	</section>
 </settings>

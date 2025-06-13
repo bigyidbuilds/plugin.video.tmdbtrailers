@@ -26,7 +26,16 @@ class TMDBAPI_KeyError_Exception(Exception):
 
 
 
+# class RUNPLUGIN_sysargv_Exception(Exception):
+	
 class RUNPLUGIN_sysargv_Exception(Exception):
-	pass
+	"""docstring for RUNPLUGIN_sysargv_Exception"""
+	def __init__(self,message='',req_keys=None,keys=None):
+		super(RUNPLUGIN_sysargv_Exception, self).__init__()
+		self.message = message
+		self.req_keys = req_keys
+		self.keys = keys
+		self.logmessage f'ERROR Incorrect keys in passed sys.argv of run plugin method\n\tmissings keys are\n{set(self.req_keys)-set(self.keys)}'
+		
 		
 		

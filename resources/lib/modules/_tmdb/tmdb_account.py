@@ -14,6 +14,7 @@ from resources.lib.modules import exceptions
 from resources.lib.modules.userjson import ReadUserDataFile,WriteJsonFile
 
 
+
 class Tmdb_Account():
 	"""docstring for Tmdb_Account"""
 	def __init__(self,session_id,clientaddon=None,tmdb_api_key=None,tmdb_api_bearer=None):
@@ -67,13 +68,22 @@ class Tmdb_Account():
 			return None,None
 
 
-	def AccountDetails(self,writetofile=True):
+	def AccountDetails(self,write_to_settings=True):
 		'''https://developer.themoviedb.org/reference/account-details'''
 		ret,keys = self._Session('GET','account',_params={'session_id':self.session_id})
-		acc = self.userjson.get('account').get('account_details')
-		if writetofile:
-			acc.update(ret)
-			WriteJsonFile(_xbmcaddon._AddonInfo(self.__addon__,'profile'),'user.json',self.userjson)
+		# acc = self.userjson.get('account').get('account_details')
+		# acc_id = ret.get('id')
+		# acc_name = ret.get('name')
+		# acc_lang = ret.get('iso_639_1')
+		# acc_adult = ret.get('include_adult')
+		# acc_icon  = self.ImageUrl(ret.get('tmdb').get('avatar_path'))
+		if write_to_settings:
+			self.AddonSettings.setInt('tmdb.user.id', ret.get('id'))
+			self.AddonSettings.setString('tmdb.user.name',ret.get('name'))
+			self.AddonSettings.setString('tmdb.user.defaultlanguage',ret.get('iso_639_1'))
+			self.AddonSettings.setBool('tmdb.user.adultsearch',ret.get('include_adult'))
+			self.AddonSettings.setString('tmdb.user.avatar',self.ImageUrl(ret.get('tmdb').get('avatar_path')))
+			return ret
 		else:
 			return ret
 
@@ -87,8 +97,7 @@ class Tmdb_Account():
 			_json=payload,
 			_headers={
 				"content-type": "application/json"})
-		Log(ret)
-		Log(keys)
+
 
 	def GetLists(self,path,page,listitems=True):
 		'''https://developer.themoviedb.org/reference/account-lists'''
