@@ -6,18 +6,20 @@ import sys
 from urllib.parse import parse_qs,urlencode
 
 import xbmc
+import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import xbmcvfs
 
-from resources.lib.modules.utils import Log,ListItemFolder,ReadJsonFile,ValidateJsonFile,CheckCreateFile,WriteJsonFile,TimeStamp
+from resources.lib.modules.utils import Log,ReadJsonFile,ValidateJsonFile,CheckCreateFile,WriteJsonFile,TimeStamp
 from resources.lib.modules.userjson import UserDataFile,CheckUserAccount,ReadUserDataFile,ClearUserLists,writeUserDataFile,UserReFreshLists
 from resources.lib.modules._xbmcaddon import _AddonInfo,_AddonLocalStr,_AddonSettings
-from resources.lib.modules._tmdb.tmdb import Tmdb_API
+from resources.lib.modules._xbmcgui import ListItemBasic,ListitemTMDBitem
+from resources.lib.modules._tmdb.tmdb import TMDB_API
 from resources.lib.modules._tmdb.tmdb_authentication import Tmdb_Authentication
 from resources.lib.modules._tmdb.tmdb_account import Tmdb_Account
 from resources.lib.modules._tmdb import tmdb_registeration
-from resources.lib._youtube import youtube as YT
+from resources.lib.modules._youtube import youtube as YT
 
 __addon__ = 'plugin.video.tmdbtrailers'
 
@@ -57,7 +59,7 @@ except:
 Log(f'addon_url={addon_url},\naddon_handle={addon_handle}\naddon_args={addon_args}')
 
 '''Notes of functions
-	ListItemFolder(label,icon=None,fanart=None,properties=None)
+	ListItemBasic(label,icon=None,fanart=None,properties=None)
 '''
 def GetIconPath(filename):
 	return os.path.join(_AddonInfo(__addon__,'path'),'resources','media',filename)
@@ -83,7 +85,7 @@ def LoadFixedMenu(menu):
 	Log(items)
 	if items:
 		for i in items:
-			li = ListItemFolder(_AddonLocalStr(__addon__,i.get("localstr")),icon=GetIconPath(i.get('icon')),properties=i)
+			li = ListItemBasic(_AddonLocalStr(__addon__,i.get("localstr")),icon=GetIconPath(i.get('icon')),properties=i)
 			AddDir(i,li,True)
 	else:
 		return
@@ -91,18 +93,21 @@ def LoadFixedMenu(menu):
 def GetList(callurl,next_submenu,_type,path,page,prev_submenu):
 	if page:
 		newpage = int(page)+1
-	tmdbapi = Tmdb_API()
-	items,apipage,totalpages = tmdbapi.GetList(callurl,page)
-	for i in items:
-		vi = i.getVideoInfoTag()
-		tmdbID = vi.getUniqueID('tmdb')
-		AddDir({'submenu':next_submenu,'type':_type,'callurl':path.format(tmdbID=tmdbID)},i,True)
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
+	# items,apipage,totalpages = tmdbapi.GetList(callurl,page)
+	data = tmdbapi.GetList(callurl,page)
+	totalpages = data.get('total_pages')
+	results = data.get('results')
+	for r in results:
+		li = ListitemTMDBitem(r,True)
+		media_type = callurl.split('/')[0]
+		AddDir({'submenu':next_submenu,'type':_type,'callurl':path.format(tmdbID=r.get('id')),'mediatype':media_type},li,True)
 	if page and newpage <= totalpages:
-		li = ListItemFolder(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		li = ListItemBasic(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
 		AddDir({'submenu':prev_submenu,'type':'tmdb_api_call','callurl':callurl,'page':newpage},li,True)
 
 def GetPersonCredits(call_url):
-	tmdbapi = Tmdb_API()
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
 	items,apipage,totalpages = tmdbapi.GetList(call_url,None)
 	for i in items:
 		vi = i.getVideoInfoTag()
@@ -117,7 +122,7 @@ def GetPersonCredits(call_url):
 
 def GetVideo(callurl):
 	videos = []
-	tmdbapi = Tmdb_API()
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
 	items = tmdbapi.GetVidoes(callurl,listitems=False)
 	for i in items:
 		if i.get('site') == "YouTube":
@@ -133,7 +138,7 @@ def GetVideo(callurl):
 	else:
 		path = callurl.split('/')
 		path = '/'.join(path[:2])
-		tmdbapi = Tmdb_API()
+		tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
 		item = tmdbapi.GetItem(path,listitems=False)
 		ret = xbmcgui.Dialog().ok(_AddonLocalStr(__addon__,32016), _AddonLocalStr(__addon__,32017).format(item.get('title',item.get('name'))))
 		if ret:
@@ -143,7 +148,7 @@ def GetVideo(callurl):
 
 def MovieSearch(callurl):
 	query = Search(_AddonInfo(__addon__,'profile'),'user.json','movie_search')
-	tmdbapi = Tmdb_API()
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
 	items = tmdbapi.Search(query,callurl)
 	for i in items:
 		vi = i.getVideoInfoTag()
@@ -152,7 +157,7 @@ def MovieSearch(callurl):
 
 def TvSearch(callurl):
 	query = Search(_AddonInfo(__addon__,'profile'),'user.json','tv_search')
-	tmdbapi = Tmdb_API()
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
 	items = tmdbapi.Search(query,callurl)
 	for i in items:
 		vi = i.getVideoInfoTag()
@@ -193,25 +198,30 @@ def PlayContent(callurl,submenu):
 
 def tmdbMenu():
 	items = []
-	data = ReadJsonFile(_AddonInfo(__addon__,'profile'),'user.json',key="access")
-	session_details = data.get(__addon__).get("session_details")
-	signedin = session_details.get('inuse')
-	if not signedin:
-		li = ListItemFolder(_AddonLocalStr(__addon__,32019),icon=None,fanart=None,properties={'submenu':'usertmdb','type':'signin'})
+	# data = ReadJsonFile(_AddonInfo(__addon__,'profile'),'user.json',key="access")
+	session_id = addon_settings.getString('tmdb.user.sessionid')
+	Log(session_id)
+	# session_details = data.get(__addon__).get("session_details")
+	# signedin = session_details.get('inuse')
+	if not session_id:
+		li = ListItemBasic(_AddonLocalStr(__addon__,32019),icon=None,fanart=None,properties={'submenu':'usertmdb','type':'signin'})
 		items.append((BuildPluginUrl({'submenu':'usertmdb','type':'signin'}),li,False))
 	else:
-		li = ListItemFolder(_AddonLocalStr(__addon__,32020),icon=None,fanart=None,properties={'submenu':'usertmdb','type':'signout'})
+		li = ListItemBasic(_AddonLocalStr(__addon__,32020),icon=None,fanart=None,properties={'submenu':'usertmdb','type':'signout'})
 		items.append((BuildPluginUrl({'submenu':'usertmdb','type':'signout'}),li,False))
 		_items = GetMenuItems('usertmdb')
 		for i in _items:
-			li = ListItemFolder(_AddonLocalStr(__addon__,i.get("localstr")),icon=GetIconPath(i.get('icon')),properties=i)
+			li = ListItemBasic(_AddonLocalStr(__addon__,i.get("localstr")),icon=GetIconPath(i.get('icon')),properties=i)
 			items.append((BuildPluginUrl(i),li,True))
 	AddDirs(items,len(items))
 
 def tmdbSignIn():
 	tmdbauth = Tmdb_Authentication()
-	tmdbauth.SignIn()
-	UserReFreshLists(favorite=True,rated=True,watchlist=True,lists=True)
+	session_id = tmdbauth.SignIn()
+	# updated = addon_settings.setString('tmdb.user.sessionid', session_id)
+	updated = xbmcaddon.Addon(__addon__).setSettingString('tmdb.user.sessionid', session_id)
+	Log(updated)
+	# UserReFreshLists(favorite=True,rated=True,watchlist=True,lists=True)
 	xbmc.executebuiltin('Container.Refresh')
 	
 
@@ -231,7 +241,7 @@ def tmdbGetList(callurl,next_submenu,_type,path,page,prev_submenu,prev_type):
 		tmdbID = vi.getUniqueID('tmdb')
 		AddDir({'submenu':next_submenu,'type':_type,'callurl':path.format(tmdbID=tmdbID)},i,True)
 	if page and newpage <= totalpages:
-		li = ListItemFolder(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		li = ListItemBasic(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
 		AddDir({'submenu':prev_submenu,'type':prev_type,'callurl':callurl,'page':newpage},li,True)
 
 def tmdbGetLists(callurl,page,path):
@@ -240,14 +250,14 @@ def tmdbGetLists(callurl,page,path):
 	tmdbacc = Tmdb_Account(session_id)
 	items,apipage,totalpages = tmdbacc.GetLists(callurl,page)
 	newpage = page+1
-	li = ListItemFolder(_AddonLocalStr(__addon__,32028))
+	li = ListItemBasic(_AddonLocalStr(__addon__,32028))
 	AddDir({'submenu':'usertmdb','type':'addlist'},li,False)
 	for i in items:
 		properties = json.loads(i.getProperty('properties'))
 		list_id = properties.get('id')
 		AddDir({'submenu':'usertmdb','type':'tmdbgetlistdetails','callurl':path.format(list_id=list_id)},i,True)
 	if page and newpage <= totalpages:
-		li = ListItemFolder(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		li = ListItemBasic(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
 		AddDir({'submenu':'usertmdb','type':'tmdbGetList','page':newpage,'callurl':callurl},li,True)	
 
 def tmdbGetListDetails(callurl,page):
@@ -265,7 +275,7 @@ def tmdbGetListDetails(callurl,page):
 		elif media_type == 'tv':
 			AddDir({'submenu':'tvgetvideo','type':'tmdb_api_call','callurl':f'tv/{tmdbID}/videos'},i,True)
 	if page and newpage <= totalpages:
-		li = ListItemFolder(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		li = ListItemBasic(f'{_AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
 		AddDir({'submenu':'usertmdb','type':'tmdbgetlistdetails','page':newpage,'callurl':callurl},li,True)
 
 def tmdbAddList():
@@ -298,15 +308,14 @@ YT.YouTubeRegistration(addon_id=__addon__,api_key=addon_settings.getString("yout
 if mode == 'addon':
 	if submenu == None:
 		UserDataFile()
-		tmdb_registeration.RegistrateAPIKey(_AddonInfo(__addon__,'profile'),'user.json',__addon__,addon_settings.getString('tmdb.api.key'),addon_settings.getString('tmdb.api.token'))
-		if addon_settings.getBool('tmdb.lists.refresh'):
-			UserReFreshLists(favorite=True,rated=True,watchlist=True,lists=True)
+		# tmdb_registeration.RegistrateAPIKey(_AddonInfo(__addon__,'profile'),'user.json',__addon__,addon_settings.getString('tmdb.api.key'),addon_settings.getString('tmdb.api.token'))
+		# if addon_settings.getBool('tmdb.lists.refresh'):
+		# 	UserReFreshLists(favorite=True,rated=True,watchlist=True,lists=True)
 		Log('Loading Home page')
 		LoadFixedMenu("main")
 	elif submenu and menutype == "fixed":
 		LoadFixedMenu(submenu)
 	elif submenu and menutype == "tmdb_api_call":
-		Log('Making tmdb api call')
 		if submenu == "moviegetlist":
 			GetList(callurl,'moviegetvideo',menutype,'movie/{tmdbID}/videos',page,submenu)
 		elif submenu == "moviegetvideo":

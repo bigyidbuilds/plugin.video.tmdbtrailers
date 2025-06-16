@@ -131,16 +131,6 @@ def TodaysDate():
 	return datetime.today().strftime('%Y-%m-%d')
 
 
-def ListItemFolder(label,label2=None,icon=None,fanart=None,properties=None,isfolder=True):
-	li = xbmcgui.ListItem(label)
-	if label2:
-		li.setLabel2(label2)
-	li.setArt({'icon':icon,'fanart':fanart,'thumb':icon})
-	if properties:
-		li.setProperties(properties)
-	li.setIsFolder(isfolder)
-	return li 
-
 
 def Log(msg):
 	settings = _AddonSettings(__addon__)

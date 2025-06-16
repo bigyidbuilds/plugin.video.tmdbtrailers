@@ -11,7 +11,7 @@ import xbmcgui
 from resources.lib.modules import _xbmcaddon
 from resources.lib.modules.utils import Log,TimeStamp
 from resources.lib.modules import exceptions
-from resources.lib.modules.userjson import ReadUserDataFile,WriteJsonFile
+# from resources.lib.modules.userjson import ReadUserDataFile,WriteJsonFile
 
 
 
@@ -32,7 +32,7 @@ class Tmdb_Account():
 			self.bearer      = self.AddonSettings.getString("tmdb.api.token")
 		else:
 			self.bearer 		 = tmdb_api_bearer
-		self.userjson      = ReadUserDataFile()
+		# self.userjson      = ReadUserDataFile()
 		self.scheme        = 'https'
 		self.netloc        = 'api.themoviedb.org'
 		self.apiversion    = '3'
@@ -55,11 +55,11 @@ class Tmdb_Account():
 				u = self.session.post(URL,headers=_headers,params=_params,json=_json)
 			elif method == 'DEL':
 				u = self.session.delete(URL,headers=_headers,params=_params,json=_json)
-			auth = u.json()
-			keys = list(auth.keys())
-			if all(keys in auth for keys in self.error_keys):
-				raise exceptions.TMDBAPI_Response_Exception(message='Response Error',errors_dict=auth,url=u.url)
-			return auth,keys
+			ret = u.json()
+			keys = list(ret.keys())
+			if all(keys in ret for keys in self.error_keys):
+				raise exceptions.TMDBAPI_Response_Exception(message='Response Error',errors_dict=ret,url=u.url)
+			return ret,keys
 		except exceptions.TMDBAPI_Response_Exception as e:
 			Log(e.logmessage)
 			return None,None
@@ -68,24 +68,11 @@ class Tmdb_Account():
 			return None,None
 
 
-	def AccountDetails(self,write_to_settings=True):
+	def AccountDetails(self):
 		'''https://developer.themoviedb.org/reference/account-details'''
-		ret,keys = self._Session('GET','account',_params={'session_id':self.session_id})
-		# acc = self.userjson.get('account').get('account_details')
-		# acc_id = ret.get('id')
-		# acc_name = ret.get('name')
-		# acc_lang = ret.get('iso_639_1')
-		# acc_adult = ret.get('include_adult')
-		# acc_icon  = self.ImageUrl(ret.get('tmdb').get('avatar_path'))
-		if write_to_settings:
-			self.AddonSettings.setInt('tmdb.user.id', ret.get('id'))
-			self.AddonSettings.setString('tmdb.user.name',ret.get('name'))
-			self.AddonSettings.setString('tmdb.user.defaultlanguage',ret.get('iso_639_1'))
-			self.AddonSettings.setBool('tmdb.user.adultsearch',ret.get('include_adult'))
-			self.AddonSettings.setString('tmdb.user.avatar',self.ImageUrl(ret.get('tmdb').get('avatar_path')))
-			return ret
-		else:
-			return ret
+		ret = self._Session('GET','account',_params={'session_id':self.session_id})
+		return ret
+
 
 	def AddList(self,payload):
 		'''https://developer.themoviedb.org/reference/list-create'''

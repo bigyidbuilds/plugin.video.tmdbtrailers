@@ -122,6 +122,18 @@ msgctxt "#30026"
 msgid "Current Avatar"
 msgstr ""
 
+msgctxt "#30027"
+msgid "Language for TMDB"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Kodi set language"
+msgstr ""
+
+msgctxt "#30029"
+msgid "TMDB set language"
+msgstr ""
+
 ###---------- addon strings ----------###
 
 msgctxt "#32000"

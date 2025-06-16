@@ -13,21 +13,29 @@ from resources.lib.modules import _xbmcaddon
 from resources.lib.modules.utils import Log,TodaysDate
 from resources.lib.modules import exceptions
 
-class Tmdb_API():
-	"""docstring for Tmdb_API"""
-	def __init__(self):
-		super(Tmdb_API, self).__init__()
+class TMDB_API():
+	"""docstring for TMDB_API"""
+	def __init__(self,token):
+		super(TMDB_API, self).__init__()
 		self.AddonSettings = _xbmcaddon._AddonSettings('plugin.video.tmdbtrailers')
-		self.Language      = xbmc.getInfoLabel('System.Language')
-		self.token         = self.AddonSettings.getString("tmdb.api.token")
+		lang = self.AddonSettings.getString('general.language')
+		if lang == 'xbmc':
+			self.Language = xbmc.getInfoLabel('System.Language')
+		elif lang == 'tmdb':
+			l = self.AddonSettings.getString('tmdb.user.defaultlanguage')
+			if l != '':
+				self.Language == l
+			else:
+				self.Language = 'en-US'
+		else:
+			self.Language = 'en-US'
+		self.token         = token
 		self.scheme        = 'https'
 		self.netloc        = 'api.themoviedb.org'
 		self.apiversion    = '3'
 		self.headers       = {"accept": "application/json","Authorization":f"Bearer {self.token}"}
 		self.session       = requests.Session()
 		self.session.headers.update(self.headers)
-		self.session.params.update({'language':self.Language})
-		self.req_keys_list = ['results','cast','crew']
 		self.error_keys = ['success', 'status_code', 'status_message']
 
 	def _Session(self,url,headers=None,params=None):
@@ -47,92 +55,115 @@ class Tmdb_API():
 			return None
 
 
-	def GetList(self,path,page,listitems=True):
-		'''If listitems is True returns items as a list of xbmcgui.listitems false returns raw json data'''
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'page':page})
-		if data:
-			try:
-				keys = list(data.keys())
-				page = data.get('page',1)
-				pages = data.get('total_pages',1)
-				if not any(key in self.req_keys_list for key in keys):
-					raise exceptions.TMDBAPI_KeyError_Exception('Key Error',','.join(req_keys_list),','.join(keys))
-				if 'results' in keys:
-					data = data.get('results')
-					if listitems:
-						return self.ListItems(data,True),page,pages
-				elif all(keys in data for keys in ['cast','crew']):
-					cast = data.get('cast')
-					crew = data.get('crew')
-					_all = cast+crew
-					if listitems:
-						items = []
-						for a in _all:
-							for k,v in a.items():
-								if k == 'release_date' and v == '':
-									a.update({'release_date':'9999-12-31'})
-								elif  k == 'first_air_date' and v == '':
-									a.update({'first_air_date':'9999-12-31'})
-						_all = sorted(_all, key=lambda d: d.get('release_date',d.get('first_air_date')),reverse=True)
-						m = []
-						t = []
-						clean_all = []
-						for a in _all:
-							if a.get('release_date') == '9999-12-31':
-								a.pop('release_date',None)
-							elif a.get('first_air_date') == '9999-12-31':
-								a.pop('first_air_date',None)
-							media_type = a.get('media_type')
-							tmdbid = a.get('id')
-							if media_type == 'movie':
-								if not tmdbid in m:
-									m.append(tmdbid)
-									clean_all.append(a)
-							elif media_type == 'tv':
-								if not tmdbid in t:
-									t.append(tmdbid)
-									clean_all.append(a)
-						return self.ListItems(clean_all,True),page,pages
-				else:
-					return data,page,pages
-			except exceptions.TMDBAPI_KeyError_Exception as e:
-				Log(e.logmessage)
-				return None,page,pages
-		else:
-			return None,page,pages
+	def GetList(self,path,page):
+		'''returns json object  consiting of "results" 'page' "total_pages" main keys  
 
-	def GetItem(self,path,listitems=True):
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
-		if data:
-			if listitems:
-				pass
-			else:
-				return data
-		else:
-			return
+		https://api.themoviedb.org/3/movie/now_playing
+		path = movie/now_playing
+
+		https://api.themoviedb.org/3/movie/popular 
+		path = movie/popular
+
+		https://api.themoviedb.org/3/movie/top_rated 
+		path = movie/top_rated
+
+		https://api.themoviedb.org/3/movie/upcoming 
+		path = movie/upcoming 
+
+		https://api.themoviedb.org/3/tv/airing_today
+		path = tv/airing_today
+
+		https://api.themoviedb.org/3/tv/on_the_air
+		path = tv/on_the_air
+
+		https://api.themoviedb.org/3/tv/popular
+		path = tv/popular
+
+		https://api.themoviedb.org/3/tv/top_rated
+		path = tv/top_rated
+
+		https://api.themoviedb.org/3/person/popular
+		path = person/popular
+		'''
+		return self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'page':page})
+
+		# if data:
+		# 	try:
+		# 		keys = list(data.keys())
+		# 		page = data.get('page',1)
+		# 		pages = data.get('total_pages',1)
+		# 		if not any(key in self.req_keys_list for key in keys):
+		# 			raise exceptions.TMDBAPI_KeyError_Exception('Key Error',','.join(req_keys_list),','.join(keys))
+		# 		if 'results' in keys:
+		# 			data = data.get('results')
+		# 			if listitems:
+		# 				return self.ListItems(data,True),page,pages
+		# 		elif all(keys in data for keys in ['cast','crew']):
+		# 			cast = data.get('cast')
+		# 			crew = data.get('crew')
+		# 			_all = cast+crew
+		# 			if listitems:
+		# 				items = []
+		# 				for a in _all:
+		# 					for k,v in a.items():
+		# 						if k == 'release_date' and v == '':
+		# 							a.update({'release_date':'9999-12-31'})
+		# 						elif  k == 'first_air_date' and v == '':
+		# 							a.update({'first_air_date':'9999-12-31'})
+		# 				_all = sorted(_all, key=lambda d: d.get('release_date',d.get('first_air_date')),reverse=True)
+		# 				m = []
+		# 				t = []
+		# 				clean_all = []
+		# 				for a in _all:
+		# 					if a.get('release_date') == '9999-12-31':
+		# 						a.pop('release_date',None)
+		# 					elif a.get('first_air_date') == '9999-12-31':
+		# 						a.pop('first_air_date',None)
+		# 					media_type = a.get('media_type')
+		# 					tmdbid = a.get('id')
+		# 					if media_type == 'movie':
+		# 						if not tmdbid in m:
+		# 							m.append(tmdbid)
+		# 							clean_all.append(a)
+		# 					elif media_type == 'tv':
+		# 						if not tmdbid in t:
+		# 							t.append(tmdbid)
+		# 							clean_all.append(a)
+		# 				return self.ListItems(clean_all,True),page,pages
+		# 		else:
+		# 			return data,page,pages
+		# 	except exceptions.TMDBAPI_KeyError_Exception as e:
+		# 		Log(e.logmessage)
+		# 		return None,page,pages
+		# else:
+		# 	return None,page,pages
+
+	def GetItem(self,path):
+		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
+
 
 
 	def GetVidoes(self,path,listitems=True):
-		ret = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
-		if ret:
-			data = ret.get('results')
-			if listitems:
-				pass
-			else:
-				return data
-		else:
-			return
+		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
+		# if ret:
+		# 	data = ret.get('results')
+		# 	if listitems:
+		# 		pass
+		# 	else:
+		# 		return data
+		# else:
+		# 	return
 
 	def Search(self,query,path,listitems=True):
-		ret = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params={'query':quote(query)})
-		if ret:
-			data = ret.get('results')
-			if listitems:
-				return self.ListItems(data,True)
-			else:
-				return data
-		else:
-			return
+		return  self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params={'query':quote(query)})
+		# if ret:
+		# 	data = ret.get('results')
+		# 	if listitems:
+		# 		return self.ListItems(data,True)
+		# 	else:
+		# 		return data
+		# else:
+		# 	return
 
 	def ListItems(self,data,IsFolder):
 		items = []

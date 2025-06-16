@@ -96,6 +96,17 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="tmdb.language" type="string" label="30027" help="">
+					<level>0</level>
+					<default>xbmc</default>
+					<constraints>
+						<options>
+							<option label="30028">xbmc</option>
+							<option label="30029">tmdb</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
 			</group>
 			<group id="4" label="30021">
 				<setting id="tmdb.user.id" type="integer" label="30022" help="">
@@ -141,6 +152,17 @@
 					<level>0</level>
 					<default/>
 					<enable>false</enable>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading></heading>
+					</control>
+				</setting>
+				<setting id="tmdb.user.sessionid" type="string" label="" help="">
+					<level>0</level>
+					<default/>
+					<visible>false</visible>
 					<constraints>
 						<allowempty>true</allowempty>
 					</constraints>

@@ -82,9 +82,10 @@ class ContextMenu():
 	def ValidateSysArgvKeys(self,keys):
 		return all(key in self.req_keys for key in keys)
 
-	def ValidateSysArgvVariable(self,list_var):
+	def ValidateSysArgv(self):
 		missing = []
-		for v,k in list_var:
+		for k,v in self.sysargv:
+			v = v[0]
 			if v == None:
 				missing.append(k)
 		if len(missing) == 0:

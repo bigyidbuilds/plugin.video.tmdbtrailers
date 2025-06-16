@@ -51,8 +51,6 @@ class Tmdb_Authentication():
 			keys = list(auth.keys())
 			if all(keys in auth for keys in self.error_keys):
 				raise exceptions.TMDBAPI_Response_Exception(message='Response Error',errors_dict=auth,url=u.url)
-			Log(auth)
-			Log(keys)
 			return auth,keys
 		except exceptions.TMDBAPI_Response_Exception as e:
 			Log(e.logmessage)
@@ -108,9 +106,10 @@ class Tmdb_Authentication():
 		ret = self.CreateRequestToken()
 		tok = self.CreateSession_Withlogin(ret)
 		sid = self.CreateSession(tok)
-		session_details = self.userjson.get('access').get(self.clientaddon).get('session_details')
-		session_details.update({'session_id':sid,'created':TimeStamp(),'inuse':True})
-		WriteJsonFile(_xbmcaddon._AddonInfo(self.__addon__,'profile'),'user.json',self.userjson)
+		return sid
+		# session_details = self.userjson.get('access').get(self.clientaddon).get('session_details')
+		# session_details.update({'session_id':sid,'created':TimeStamp(),'inuse':True})
+		# WriteJsonFile(_xbmcaddon._AddonInfo(self.__addon__,'profile'),'user.json',self.userjson)
 
 	def SignOut(self):
 		session_details = self.userjson.get('access').get(self.clientaddon).get('session_details')

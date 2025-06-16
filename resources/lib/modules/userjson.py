@@ -93,7 +93,7 @@ def UserReFreshLists(favorite=False,rated=False,watchlist=False,lists=False):
 	data = ReadUserDataFile()
 	session_details = data.get('access').get(__addon__).get("session_details")
 	tmdbacc = Tmdb_Account(session_details.get('session_id'))
-	accdet = tmdbacc.AccountDetails(writetofile=False)
+	accdet = tmdbacc.AccountDetails()
 	account = data.get('account')
 	account_details = account.get('account_details')
 	account_id = account_details.get('id')
