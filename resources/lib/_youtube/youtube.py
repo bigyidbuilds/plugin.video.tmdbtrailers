@@ -10,7 +10,7 @@ import youtube_resolver
 
 import xbmcgui
 
-from resources.lib.modules.utils import Log
+from resources.lib.modules._xbmc import Log
 
 def YouTubeRegistration(addon_id,api_key,client_id,client_secret):
 	youtube_registration.register_api_keys(addon_id=addon_id,api_key=api_key,client_id=client_id,client_secret=client_secret)

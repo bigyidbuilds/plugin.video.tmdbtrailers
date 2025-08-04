@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from resources.lib.modules import userjson
+from resources.lib.modules import userlists
 from resources.lib.modules import utils
 
 def RegistrateAPIKey(filepath,filename,addon_id,key,bearer,overwrite=False):

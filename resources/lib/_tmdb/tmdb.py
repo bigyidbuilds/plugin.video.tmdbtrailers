@@ -9,16 +9,20 @@ from urllib.parse import urlunparse,urljoin,quote
 import xbmc
 import xbmcgui
 
-from resources.lib.modules import _xbmcaddon
-from resources.lib.modules.utils import Log,TodaysDate
+from resources.lib.modules._xbmc import Log,_AddonSettings,_AddonLocalStr
+from resources.lib.modules.utils import TodaysDate
 from resources.lib.modules import exceptions
 
 class TMDB_API():
 	"""docstring for TMDB_API"""
+
+	def __new__(cls,token):
+		return super().__new__(cls)
+
 	def __init__(self,token):
 		super(TMDB_API, self).__init__()
-		self.AddonSettings = _xbmcaddon._AddonSettings('plugin.video.tmdbtrailers')
-		lang = self.AddonSettings.getString('general.language')
+		self.AddonSettings = _AddonSettings('plugin.video.tmdbtrailers')
+		lang = self.AddonSettings.getString('tmdb.language')
 		if lang == 'xbmc':
 			self.Language = xbmc.getInfoLabel('System.Language')
 		elif lang == 'tmdb':
@@ -53,10 +57,23 @@ class TMDB_API():
 		except exceptions.TMDBAPI_Response_Exception as e:
 			Log(e.logmessage)
 			return None
+		except Exception as e:
+			Log(e)
+			return None
+
+	def CheckListSatus(self,list_id,tmdb_id):
+		path = f'list/{list_id}/item_status'
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'movie_id':tmdb_id})
+		if data.get('item_present'):
+			return True
+		else:
+			return False
 
 
 	def GetList(self,path,page):
 		'''returns json object  consiting of "results" 'page' "total_pages" main keys  
+
+		page is int of page number wanted in return 
 
 		https://api.themoviedb.org/3/movie/now_playing
 		path = movie/now_playing
@@ -85,7 +102,13 @@ class TMDB_API():
 		https://api.themoviedb.org/3/person/popular
 		path = person/popular
 		'''
-		return self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'page':page})
+		 
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'page':page,'language':self.Language})
+		if data:
+			return data
+		else:
+			return None
+
 
 		# if data:
 		# 	try:
@@ -143,7 +166,13 @@ class TMDB_API():
 
 
 
-	def GetVidoes(self,path,listitems=True):
+	def GetVidoes(self,tmdb_id,media_type):
+		if media_type == 'movie':
+			path = f'movie/{tmdb_id}/videos'
+		elif media_type == 'tv':
+			path = f'tv/{tmdb_id}/videos'
+		else:
+			return None
 		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
 		# if ret:
 		# 	data = ret.get('results')
@@ -154,8 +183,8 @@ class TMDB_API():
 		# else:
 		# 	return
 
-	def Search(self,query,path,listitems=True):
-		return  self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params={'query':quote(query)})
+	def Search(self,query,path,page,listitems=True):
+		return  self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params={'query':quote(query),'page':page})
 		# if ret:
 		# 	data = ret.get('results')
 		# 	if listitems:
@@ -188,7 +217,7 @@ class TMDB_API():
 			elif not 'name' in kw and 'original_name' in kw:
 				label = item.get('original_name')
 			else:
-				label = _xbmcaddon._AddonLocalStr('plugin.video.tmdbtrailers',32015)
+				label = _AddonLocalStr('plugin.video.tmdbtrailers',32015)
 			if 'profile_path' in kw:
 				poster = self.ImageUrl(item.get('profile_path'))
 			elif 'poster_path' in kw:

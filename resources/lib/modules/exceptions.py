@@ -31,7 +31,7 @@ class TMDBAPI_KeyError_Exception(Exception):
 class RUNPLUGIN_sysargv_keys_Exception(Exception):
 	"""docstring for RUNPLUGIN_sysargv_Exception"""
 	def __init__(self,message='',req_keys=None,keys=None):
-		super(RUNPLUGIN_sysargv_Exception, self).__init__()
+		super(RUNPLUGIN_sysargv_keys_Exception, self).__init__()
 		self.message = message
 		self.req_keys = req_keys
 		self.keys = keys

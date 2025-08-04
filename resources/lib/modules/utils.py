@@ -10,16 +10,11 @@ import xbmcaddon
 import xbmcgui
 import xbmcvfs
 
-from ._xbmcaddon import _AddonSettings,_AddonInfo
+from ._xbmc import _translatePath,_AddonSettings,_AddonInfo
+
 
 __addon__ = 'plugin.video.tmdbtrailers'
 
-def _translatePath(filepath):
-	if filepath.startswith('special://'):
-		filepath = xbmcvfs.translatePath(filepath)
-	else:
-		filepath = filepath
-	return filepath
 
 def _joinPath(filepath,filename):
 	return os.path.join(filepath,filename)
@@ -88,33 +83,6 @@ def ValidateJsonFile(filepath,filename,basedict):
 		validation = False
 	return validation
 
-def CheckCreateFile(filepath,filename):
-	filepath = _translatePath(filepath)
-	file = _joinPath(filepath,filename)
-	if not xbmcvfs.exists(file):
-		if not xbmcvfs.exists(filepath):
-			Log(f'Creating path {filepath}')
-			success = xbmcvfs.mkdirs(filepath)
-		else:
-			success = True
-		if success:
-			f = xbmcvfs.File(file, 'w')
-			f.close()
-			if xbmcvfs.exists(file):
-				fileexists = True
-			else:
-				fileexists = False
-		else:
-			Log(f'File path missing or not created at {filepath}')
-			fileexists = False
-	else:
-		fileexists = True
-	if fileexists:
-		Log(f'File exists {filename} at path {filepath}')
-	else:
-		Log('Unable to create file ')
-	return fileexists
-
 
 def TimeStamp(date_time=None,now=True):
 	'''params:
@@ -131,13 +99,6 @@ def TodaysDate():
 	return datetime.today().strftime('%Y-%m-%d')
 
 
-
-def Log(msg):
-	settings = _AddonSettings(__addon__)
-	if settings.getBool('general.debug'):
-		from inspect import getframeinfo, stack
-		fileinfo = getframeinfo(stack()[1][0])
-		xbmc.log(f"*__{_AddonInfo(__addon__,'name')}__{_AddonInfo(__addon__,'version')}*{msg} Python file name = {fileinfo.filename} Line Number = {fileinfo.lineno}", level=xbmc.LOGINFO)
 
 def GetListLoop(call,path,page):
 	items = []

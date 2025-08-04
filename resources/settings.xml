@@ -91,9 +91,9 @@
 				</setting>
 			</group>
 			<group id="3" label="30000" help="">
-				<setting id="tmdb.lists.refresh" type="boolean" label="30020" help="">
+				<setting id="tmdb.account.refresh" type="boolean" label="30020" help="">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="tmdb.language" type="string" label="30027" help="">
@@ -148,7 +148,7 @@
 					<enable>false</enable>
 					<control type="toggle"/>
 				</setting>
-				<setting id="tmdb.user.avatar" type="string" label="30024" help="">
+				<setting id="tmdb.user.avatar" type="string" label="30026" help="">
 					<level>0</level>
 					<default/>
 					<enable>false</enable>

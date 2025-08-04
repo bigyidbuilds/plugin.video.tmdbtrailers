@@ -95,11 +95,11 @@ msgid "Enter password"
 msgstr ""
 
 msgctxt "#30020"
-msgid "Refresh tmdb lists at startup"
+msgid "Refresh tmdb details and lists at startup"
 msgstr ""
 
 msgctxt "#30021"
-msgid "Account details from TMDB to modifiy these go to https://www.themoviedb.org/settings/account"
+msgid "Account details from TMDB to modifiy these go to\nhttps://www.themoviedb.org/settings/account"
 msgstr ""
 
 msgctxt "#30022"
@@ -258,4 +258,84 @@ msgstr ""
 
 msgctxt "#32030"
 msgid "Enter description of new list"
+msgstr ""
+
+msgctxt "#32031"
+msgid "Movie cast"
+msgstr ""
+
+msgctxt "#32032"
+msgid "Movie crew"
+msgstr ""
+
+msgctxt "#32033"
+msgid "TV cast"
+msgstr ""
+
+msgctxt "#32034"
+msgid "TV crew"
+msgstr ""
+
+msgctxt "#32035"
+msgid "Select list to view"
+msgstr ""
+
+msgctxt "#32036"
+msgid "Add to TMDB favourites"
+msgstr ""
+
+msgctxt "#32037"
+msgid "Remove from TMDB favourites"
+msgstr ""
+
+msgctxt "#32038"
+msgid "Add to TMDB watchlist"
+msgstr ""
+
+msgctxt "#32039"
+msgid "Remove from TMDB watchlist"
+msgstr ""
+
+msgctxt "#32040"
+msgid "Add TMDB rating"
+msgstr ""
+
+msgctxt "#32041"
+msgid "Remove TMDB rating"
+msgstr ""
+
+msctxt "#32042"
+msgid "Set rating (0-10)"
+msgstr ""
+
+msgctxt "#32043"
+msgid "Clear TMDB list"
+msgstr ""
+
+msgctxt "#32044"
+msgid "Delete TMDB list"
+msgstr ""
+
+msgctxt "#32045"
+msgid "Add/Remove from TMDB lists"
+msgstr ""
+
+msgctxt "#32046"
+msgid "Create new list and add"
+msgstr ""
+
+msgctxt "#32047"
+msgid "Select action"
+msgstr ""
+
+msgctxt "#32048"
+msgid "Remove from TMDB list {name}"
+msgstr ""
+
+msgctxt "#32049"
+msgid "Add to TMDB list {name}"
+msgstr ""
+
+msgctxt "#32050"
+msgid "Remove item from TMDB list"
 msgstr ""

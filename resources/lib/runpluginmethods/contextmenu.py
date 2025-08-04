@@ -5,7 +5,7 @@ from resources.lib.modules import _xbmcaddon
 from resources.lib.modules import exceptions
 from resources.lib.modules import utils
 
-from resources.lib.modules._tmdb.tmdb_account import Tmdb_Account
+from resources.lib.modules._tmdb.tmdb_account import TMDB_Account
 
 """
 Sample of path
@@ -68,7 +68,7 @@ class ContextMenu():
 			b,missing = ValidateSysArgvVariable(list_var):
 			if not b:
 				raise exceptions.RUNPLUGIN_sysargv_var_Exception(f'ERROR values missing from sys.argv of run plugin method\n\tMissing values are {missing}')
-			self.tmdbacc = Tmdb_Account()
+			self.tmdbacc = TMDB_Account()
 			if mode == 'contextmenu' and action == 'add_to_favorites':
 				self.AddFavorites()
 		except Exception exceptions.RUNPLUGIN_sysargv_Exception as e:

@@ -5,34 +5,25 @@ import json
 import requests
 from urllib.parse import urlunparse
 
-from resources.lib.modules import _xbmcaddon
-from resources.lib.modules.utils import Log,TimeStamp
+from resources.lib.modules._xbmc import Log
 from resources.lib.modules import exceptions
-from resources.lib.modules.userjson import ReadUserDataFile,WriteJsonFile
+
 
 
 
 class Tmdb_Authentication():
 	"""docstring for Tmdb_Authentication"""
-	def __init__(self,clientaddon=None,tmdb_api_key=None,tmdb_api_bearer=None):
+
+	def __new__(cls,tmdb_api_bearer,tmdb_api_key=None):
+			return super().__new__(cls)
+
+	def __init__(self,tmdb_api_bearer,tmdb_api_key=None):
 		super(Tmdb_Authentication, self).__init__()
 		self.__addon__     = 'plugin.video.tmdbtrailers'
-		if clientaddon == None:
-			self.clientaddon = self.__addon__
-		else:
-			self.clientaddon = clientaddon
-		self.AddonSettings = _xbmcaddon._AddonSettings(self.__addon__)
-		self.username      = self.AddonSettings.getString('tmdb.api.username')
-		self.password      = self.AddonSettings.getString('tmdb.api.password')
-		if tmdb_api_bearer == None:
-			self.bearer      = self.AddonSettings.getString("tmdb.api.token")
-		else:
-			self.bearer 		 = tmdb_api_bearer
-		self.userjson      = ReadUserDataFile()
 		self.scheme        = 'https'
 		self.netloc        = 'api.themoviedb.org'
 		self.apiversion    = '3'
-		self.headers       = {"accept": "application/json","Authorization":f"Bearer {self.bearer}"}
+		self.headers       = {"accept": "application/json","Authorization":f"Bearer {tmdb_api_bearer}"}
 		self.session       = requests.Session()
 		self.session.headers.update(self.headers)
 		self.error_keys = ['success', 'status_code', 'status_message']
@@ -62,23 +53,26 @@ class Tmdb_Authentication():
 	def CreateRequestToken(self):
 		''' API reference https://developer.themoviedb.org/reference/authentication-create-request-token '''
 		ret,keys = self._Session('GET','/authentication/token/new')
-		Log(ret)
 		if ret.get('success') == True and 'request_token' in keys:
 			return ret.get('request_token')
+		else:
+			return None
 		
 
-	def CreateSession_Withlogin(self,token):
+	def CreateSession_Withlogin(self,token,username,password):
 		''' API reference https://developer.themoviedb.org/reference/authentication-create-request-token '''
 		ret,keys = self._Session(
 			'POST',
 			'authentication/token/validate_with_login',
 			_headers={"content-type": "application/json"},
 			_json={ 
-				"username": self.username,
-				"password": self.password,
+				"username": username,
+				"password": password,
 				"request_token": token})
 		if ret.get('success') == True and 'request_token' in keys:
 			return ret.get('request_token')
+		else:
+			return None
 
 
 	def CreateSession(self,token):
@@ -90,6 +84,8 @@ class Tmdb_Authentication():
 			_json={'request_token':token})
 		if ret.get('success') == True and "session_id" in keys:
 			return ret.get('session_id')
+		else:
+			return None
 
 	def DeleteSession(self,sessionID):
 		''' API reference https://developer.themoviedb.org/reference/authentication-delete-session'''
@@ -98,26 +94,32 @@ class Tmdb_Authentication():
 			'authentication/session',
 			_headers={"content-type": "application/json"},
 			_json={"session_id":sessionID})
-		if ret.get('success') == True:
-			return ret,keys
+		if ret:
+			if ret.get('success') == True:
+				return ret,keys
+		else:
+			return None,None
 
 
-	def SignIn(self):
+	def SignIn(self,username,password):
+		sid = None
 		ret = self.CreateRequestToken()
-		tok = self.CreateSession_Withlogin(ret)
-		sid = self.CreateSession(tok)
+		if ret:
+			tok = self.CreateSession_Withlogin(ret,username,password)
+			if tok:
+					sid = self.CreateSession(tok)
 		return sid
-		# session_details = self.userjson.get('access').get(self.clientaddon).get('session_details')
-		# session_details.update({'session_id':sid,'created':TimeStamp(),'inuse':True})
-		# WriteJsonFile(_xbmcaddon._AddonInfo(self.__addon__,'profile'),'user.json',self.userjson)
 
-	def SignOut(self):
-		session_details = self.userjson.get('access').get(self.clientaddon).get('session_details')
-		session_id = session_details.get('session_id')
+
+	def SignOut(self,session_id):
 		ret,key = self.DeleteSession(session_id)
-		if ret.get('success') == True:
-			session_details.update({'inuse':False})
-			WriteJsonFile(_xbmcaddon._AddonInfo(self.__addon__,'profile'),'user.json',self.userjson)
+		if ret:
+			if ret.get('success') == True:
+				return True
+			else:
+				return False
+		else:
+			return False
 
 
 		
@@ -136,9 +138,3 @@ class Tmdb_Authentication():
 		return True
 
 
-'''
-ValidateKey return
-{
-  "success": true
-}
-'''
