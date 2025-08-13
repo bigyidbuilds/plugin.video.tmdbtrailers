@@ -175,7 +175,7 @@
                 "submenu": "persongetlist",
                 "callurl": "person/popular",
                 "type": "tmdb_api_call",
-                "mediatype": null
+                "mediatype": "person"
             },
             {
                 "label": "Search",
@@ -183,9 +183,9 @@
                 "icon": "path/search.png",
                 "fanart": null,
                 "submenu": "search",
-                "callurl": "URL",
-                "type": "search",
-                "mediatype": null
+                "callurl": "search/person",
+                "type": "person",
+                "mediatype": "person"
             }
         ],
         "usertmdb": [

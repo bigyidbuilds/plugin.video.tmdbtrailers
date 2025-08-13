@@ -153,6 +153,7 @@ def GetIconPath(item):
 
 
 def GetList(callurl,next_submenu,_type,path,page,prev_submenu,media_type):
+	_xbmc.Log(path)
 	if page:
 		newpage = int(page)+1
 	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
@@ -162,14 +163,23 @@ def GetList(callurl,next_submenu,_type,path,page,prev_submenu,media_type):
 		results = data.get('results')
 		for r in results:
 			tmdbid = r.get('id')
+			_xbmc.Log(tmdbid)
 			li = _xbmc.ListitemTMDBitem(r,True)
-			contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],media_type,None,tmdbid)
-			li.addContextMenuItems(contextitems)
+			if media_type in ['movie','tv']:
+				contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],media_type,None,tmdbid)
+				li.addContextMenuItems(contextitems)
+			_xbmc.Log(path)
+			if path:
+				fullpath = path.format(tmdbID=tmdbid)
+			else:
+				fullpath = path
+			_xbmc.Log(path)
 			AddDir({
 				'submenu':next_submenu,
 				'type':_type,
-				'callurl':path.format(tmdbID=r.get('id')),
-				'mediatype':media_type
+				'callurl':fullpath,
+				'mediatype':media_type,
+				'tmdbid':tmdbid
 				},li,True)
 		if page and newpage <= totalpages:
 			li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}',fanart=_xbmc._AddonInfo(__addon__,'fanart'))
@@ -180,6 +190,7 @@ def GetList(callurl,next_submenu,_type,path,page,prev_submenu,media_type):
 				'page':newpage,
 				'mediatype':media_type
 				},li,True)
+		xbmcplugin.endOfDirectory(addon_handle)
 	else:
 		return
 
@@ -227,28 +238,45 @@ def GetPersonCredits(call_url):
 		li = (_xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32034)} {len(crew_tv)}',properties={'items':crew_tv}))
 		selection.append((BuildPluginUrl({'results':json.dumps(crew_tv),'submenu':'personviewcredits','type':'tmdb_api_call','mediatype':'tv'}),li,True))
 	AddDirs(selection,len(selection))
+	xbmcplugin.endOfDirectory(addon_handle)
 
 
-def GetVideo(callurl):
-	videos = []
+def GetVideo(tmdbid,mediatype):
 	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
-	items = tmdbapi.GetVidoes(callurl)
-	for i in items:
-		if i.get('site') == "YouTube":
-			key = i.get('key')
-			if key not in videos:
-				videos.append(key)
-	if len(videos) >= 1:
-		youtubevideos = YT.YouTubeGetVideos(videos,__addon__)
-		if youtubevideos:
-			for i in youtubevideos:
-				yt_id = i.getProperty("id")
-				AddDir({'submenu':'youtube_video','callurl':yt_id,'type':'play'},i,False)
+	data = tmdbapi.GetVidoes(tmdbid,mediatype)
+	results = data.get('results')
+	content = []
+	if len(results) > 0:
+		for r in results:
+			site = r.get('site')
+			key = r.get('key')
+			name = r.get('name')
+			if site == 'YouTube':
+				if addon_settings.getBool('youtube.general.useaddon'):
+					_xbmc.Log(key)
+					li = _xbmc.ListItemBasic(name,properties=r)
+					content.append((BuildPluginUrl({'type':'play','submenu':'youtube_direct','callurl':f'plugin://plugin.video.youtube/play/?video_id={key}'}),li,False))
+			elif site == 'Vimeo':
+				pass
+			else:
+				_xbmc.Log(f'{site} not recognize in filter {r}')
+		AddDirs(content,len(content))
+		xbmcplugin.endOfDirectory(addon_handle)
+	# for i in items:
+	# 	if i.get('site') == "YouTube":
+	# 		key = i.get('key')
+	# 		if key not in videos:
+	# 			videos.append(key)
+	# if len(videos) >= 1:
+	# 	youtubevideos = YT.YouTubeGetVideos(videos,__addon__)
+	# 	if youtubevideos:
+	# 		for i in youtubevideos:
+	# 			yt_id = i.getProperty("id")
+	# 			AddDir({'submenu':'youtube_video','callurl':yt_id,'type':'play'},i,False)
 	else:
-		path = callurl.split('/')
-		path = '/'.join(path[:2])
 		tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
-		item = tmdbapi.GetItem(path,listitems=False)
+		path = f'{mediatype}/{tmdbid}'
+		item = tmdbapi.GetItem(path)
 		ret = xbmcgui.Dialog().ok(_xbmc._AddonLocalStr(__addon__,32016), _xbmc._AddonLocalStr(__addon__,32017).format(item.get('title',item.get('name'))))
 		if ret:
 			xbmc.executebuiltin('Action(Back)')
@@ -269,9 +297,68 @@ def LoadFixedMenu(menu):
 				fanart = _xbmc._AddonInfo(__addon__,'fanart')
 			li = _xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,i.get("localstr")),icon=icon,fanart=fanart,properties=i)
 			AddDir(i,li,True)
+		xbmcplugin.endOfDirectory(addon_handle)
 	else:
 		return
 
+
+def MovieSearch(callurl,page,query):
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
+	data = tmdbapi.Search(query,callurl,page)
+	totalpages = data.get('total_pages')
+	results = data.get('results')
+	newpage = page+1
+	for r in results:
+		li = _xbmc.ListitemTMDBitem(r,True)
+		tmdbID = r.get('id')
+		contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],'movie',None,tmdbID)
+		li.addContextMenuItems(contextitems)
+		AddDir({
+			'submenu':'getvideo',
+			'type':'tmdb_api_call',
+			'tmdbid':tmdbID,
+			'mediatype':'movie'
+			},li,True)
+	if newpage <= totalpages:
+		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		AddDir({
+			'submenu':'search',
+			'page':newpage,
+			'callurl':'search/movie',
+			'icon':'path/search.png',
+			'mediatype':'movie',
+			'query':query,
+			'type':'movies'
+			},li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
+
+
+def PersonSearch(callurl,page,query):
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
+	data = tmdbapi.Search(query,callurl,page)
+	totalpages = data.get('total_pages')
+	results = data.get('results')
+	newpage = page+1
+	for r in results:
+		li = _xbmc.ListitemTMDBitem(r,True)
+		tmdbID = r.get('id')
+		AddDir({
+			"callurl":f"person/{tmdbID}/combined_credits",
+			"type":"tmdb_api_call",
+			"submenu":"persongetcredits"
+			},li,True)
+	if newpage <= totalpages:
+		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		AddDir({
+			'submenu':'search',
+			'page':newpage,
+			'callurl':'search/movie',
+			'icon':'path/search.png',
+			'mediatype':'person',
+			'query':query,
+			'type':'person'
+			},li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
 
 def PlayContent(callurl,submenu):
 	stream = None
@@ -303,16 +390,22 @@ def RequiredDirs():
 	for k,v in dirs.items():
 		_xbmc.CheckCreatePath(v.get('path_base'),folders=v.get('path_dirs'))
 
-def Search(filepath,key):
-	data = ReadJsonFile(filepath)
+def Search(callurl,mediatype):
+	if mediatype == 'movie':
+		key = 'movie_search'
+	elif mediatype == 'tv':
+		key = 'tv_search'
+	elif mediatype == 'person':
+		key = 'people_search'
+	data = ReadJsonFile(FILEPATHS.search)
 	searches = data.get(key)
 	searches  = sorted(searches, key=lambda d: d['timestamp'],reverse=True)
 	searches = searches[:15]
 	newsearch = _xbmc._AddonLocalStr(__addon__,32013)
-	items = [xbmcgui.ListItem(newsearch)]
+	items = [_xbmc.ListItemBasic(newsearch,isfolder=False)]
 	if len(searches)>=1:
 		for ms in searches:
-			items.append(xbmcgui.ListItem(ms.get('query')))
+			items.append(_xbmc.ListItemBasic(ms.get('query'),isfolder=False))
 		ret = xbmcgui.Dialog().select(_xbmc._AddonLocalStr(__addon__,32012), items)
 		q = items[ret]
 	elif len(searches)==0:
@@ -320,10 +413,15 @@ def Search(filepath,key):
 	if q.getLabel() == newsearch:
 		d = xbmcgui.Dialog().input(_xbmc._AddonLocalStr(__addon__,32011),type=xbmcgui.INPUT_ALPHANUM)
 		data[key].append({'query':d,'timestamp':TimeStamp()})
-		WriteJsonFile(filepath,data)
+		WriteJsonFile(FILEPATHS.search,data)
 	else:
 		d = q.getLabel()
-	return d
+	li = _xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32051).format(name=d))
+	AddDir({'query':d,'mediatype':mediatype,'callurl':callurl,'page':1,'submenu':'search'},li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
+	xbmc.executebuiltin(f'Container.Update({BuildPluginUrl({"query":d,"mediatype":mediatype,"callurl":callurl,"page":1,"submenu":"search"})})')
+
+	
 
 def SetAccountDetails(addonID):
 	tmdbacc = TMDB_Account(addon_settings.getString('tmdb.api.token'),addon_settings.getString('tmdb.user.sessionid'))
@@ -373,12 +471,10 @@ def tmdbAddList():
 	xbmc.executebuiltin('Container.Refresh')
 
 
-def tmdbGetList(callurl,next_submenu,_type,path,page,prev_submenu,prev_type,mediatype):
-	_xbmc.Log(mediatype)
+def tmdbGetList(callurl,next_submenu,_type,page,prev_submenu,prev_type,mediatype):
 	account_id = addon_settings.getInt('tmdb.user.id')
-	callurl = callurl.format(account_id)
 	tmdbacc = TMDB_Account(addon_settings.getString('tmdb.api.token'),addon_settings.getString('tmdb.user.sessionid'))
-	data = tmdbacc.GetList(callurl,page)
+	data = tmdbacc.GetList(callurl.format(account_id),page)
 	results = data.get('results')
 	totalpages = data.get('total_pages')
 	newpage = page+1
@@ -387,10 +483,22 @@ def tmdbGetList(callurl,next_submenu,_type,path,page,prev_submenu,prev_type,medi
 		li = _xbmc.ListitemTMDBitem(r,True)
 		contextitems = ContextMenu(['favorite','watchlist','edit_lists'],mediatype,None,tmdbID)
 		li.addContextMenuItems(contextitems)
-		AddDir({'submenu':next_submenu,'type':_type,'callurl':path.format(tmdbID=tmdbID)},li,True)
+		AddDir({
+			'submenu':next_submenu,
+			'type':_type,
+			'tmdbid':tmdbID,
+			'mediatype':mediatype},
+			li,True)
 	if page and newpage <= totalpages:
 		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
-		AddDir({'submenu':prev_submenu,'type':prev_type,'callurl':callurl,'page':newpage},li,True)
+		AddDir({
+			'submenu':prev_submenu,
+			'type':prev_type,
+			'callurl':callurl,
+			'page':newpage,
+			'mediatype':mediatype},
+			li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
 
 
 def tmdbGetListDetails(callurl,page):
@@ -406,13 +514,11 @@ def tmdbGetListDetails(callurl,page):
 		media_type = i.get('media_type')
 		contextitems = ContextMenu(['delete_listitem'],media_type,list_id,None)
 		li.addContextMenuItems(contextitems)
-		if media_type == 'movie':
-			AddDir({'submenu':'moviegetvideo','type':'tmdb_api_call','callurl':f'movie/{tmdbID}/videos'},li,True)
-		elif media_type == 'tv':
-			AddDir({'submenu':'tvgetvideo','type':'tmdb_api_call','callurl':f'tv/{tmdbID}/videos'},li,True)
+		AddDir({'submenu':'getvideo','type':'tmdb_api_call','tmdbid':tmdbID,'mediatype':media_type},li,True)
 	if page and newpage <= totalpages:
 		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
 		AddDir({'submenu':'usertmdb','type':'tmdbgetlistdetails','page':newpage,'callurl':callurl},li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
 
 
 def tmdbGetLists(callurl,page,path):
@@ -436,6 +542,7 @@ def tmdbGetLists(callurl,page,path):
 	if page and newpage <= totalpages:
 		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
 		AddDir({'submenu':'usertmdb','type':'tmdbGetList','page':newpage,'callurl':callurl},li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
 
 
 def tmdbMenu():
@@ -463,36 +570,12 @@ def tmdbMenu():
 			li = _xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,i.get("localstr")),icon=icon,fanart=fanart,properties=i)
 			items.append((BuildPluginUrl(i),li,True))
 	AddDirs(items,len(items))
+	xbmcplugin.endOfDirectory(addon_handle)
 
-def tmdbMovieSearch(callurl,page,query):
-	if not query:
-		query = Search(FILEPATHS.search,'movie_search')
-	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
-	data = tmdbapi.Search(query,callurl,page)
-	totalpages = data.get('total_pages')
-	results = data.get('results')
-	newpage = page+1
-	for r in results:
-		li = _xbmc.ListitemTMDBitem(r,True)
-		tmdbID = r.get('id')
-		contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],'movie',None,tmdbID)
-		li.addContextMenuItems(contextitems)
-		AddDir({
-			'submenu':'moviegetvideo',
-			'type':'tmdb_api_call',
-			'callurl':f'movie/{tmdbID}/videos'
-			},li,True)
-	if newpage <= totalpages:
-		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
-		AddDir({
-			'submenu':'search',
-			'page':newpage,
-			'callurl':'search/movie',
-			'icon':'path/search.png',
-			'mediatype':'movie',
-			'query':query,
-			'type':'movies'
-			},li,True)
+
+
+
+
 
 def tmdbSignIn():
 	tmdbauth = Tmdb_Authentication(addon_settings.getString('tmdb.api.token'))
@@ -516,35 +599,6 @@ def tmdbSignOut():
 	xbmc.executebuiltin('Container.Refresh')
 
 
-def tmdbTvSearch(callurl,page,query):
-	if not query:
-		query = Search(FILEPATHS.search,'tv_search')
-	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
-	data = tmdbapi.Search(query,callurl,page)
-	totalpages = data.get('total_pages')
-	results = data.get('results')
-	newpage = page+1
-	for r in results:
-		tmdbID = r.get('id')
-		li = _xbmc.ListitemTMDBitem(r,True)
-		contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],'tv',None,tmdbID)
-		li.addContextMenuItems(contextitems)
-		AddDir({
-			'submenu':'tvgetvideo',
-			'type':'tmdb_api_call',
-			'callurl':f'tv/{tmdbID}/videos'
-			},li,True)
-	if newpage <= totalpages:
-		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
-		AddDir({
-			'submenu':'search',
-			'page':newpage,
-			'query':query,
-			'callurl':'search/tv',
-			'type':'tv',
-			'mediatype':'tv'
-			},li,True)
-
 
 def tmdbuserCreditianls():
 	uj = ReadJsonFile(_xbmc._AddonInfo(__addon__,'profile'),'user.json')
@@ -564,6 +618,36 @@ def tmdbUserRefresh():
 	xbmc.executebuiltin('Container.Refresh')
 
 
+def TvSearch(callurl,page,query):
+	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
+	data = tmdbapi.Search(query,callurl,page)
+	totalpages = data.get('total_pages')
+	results = data.get('results')
+	newpage = page+1
+	for r in results:
+		tmdbID = r.get('id')
+		li = _xbmc.ListitemTMDBitem(r,True)
+		contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],'tv',None,tmdbID)
+		li.addContextMenuItems(contextitems)
+		AddDir({
+			'submenu':'getvideo',
+			'type':'tmdb_api_call',
+			'tmdbid':tmdbID,
+			'mediatype':'tv'
+			},li,True)
+	if newpage <= totalpages:
+		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}')
+		AddDir({
+			'submenu':'search',
+			'page':newpage,
+			'query':query,
+			'callurl':'search/tv',
+			'type':'tv',
+			'mediatype':'tv'
+			},li,True)
+	xbmcplugin.endOfDirectory(addon_handle)
+
+
 def ViewPersonCredits(results):
 	if results:
 		for r in results:
@@ -572,10 +656,8 @@ def ViewPersonCredits(results):
 			li = _xbmc.ListitemTMDBitem(r,True)
 			contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],media_type,None,tmdbID)
 			li.addContextMenuItems(contextitems)
-			if media_type == 'movie':
-				AddDir({'submenu':'moviegetvideo','type':'tmdb_api_call','callurl':f'movie/{tmdbID}/videos','menutype':media_type},li,True)
-			elif media_type == 'tv':
-				AddDir({'submenu':'tvgetvideo','type':'tmdb_api_call','callurl':f'tv/{tmdbID}/videos','menutype':media_type},li,True)
+			AddDir({'submenu':'getvideo','type':'tmdb_api_call','tmdbid':tmdbID,'mediatype':media_type},li,True)
+		xbmcplugin.endOfDirectory(addon_handle)
 	else:
 		xbmc.executebuiltin('Action(Back)')
 
@@ -595,13 +677,11 @@ if mode == 'addon':
 		LoadFixedMenu(submenu)
 	elif submenu and menutype == "tmdb_api_call":
 		if submenu == "moviegetlist":
-			GetList(callurl,'moviegetvideo',menutype,'movie/{tmdbID}/videos',page,submenu,mediatype)
-		elif submenu == "moviegetvideo":
-			GetVideo(callurl)
+			GetList(callurl,'getvideo',menutype,None,page,submenu,mediatype)
+		elif submenu == "getvideo":
+			GetVideo(tmdbid,mediatype)
 		elif submenu == "tvgetlist":
-			GetList(callurl,'tvgetvideo',menutype,'tv/{tmdbID}/videos',page,submenu,mediatype)
-		elif submenu == "tvgetvideo":
-			GetVideo(callurl)
+			GetList(callurl,'getvideo',menutype,None,page,submenu,mediatype)
 		elif submenu == "persongetlist":
 			GetList(callurl,'persongetcredits',menutype,'person/{tmdbID}/combined_credits',page,submenu,mediatype)
 		elif submenu == 'persongetcredits':
@@ -609,12 +689,18 @@ if mode == 'addon':
 		elif submenu == 'personviewcredits':
 			ViewPersonCredits(results)
 	elif menutype == "play":
-		PlayContent(callurl,submenu)
+		if submenu == 'youtube_direct':
+			xbmc.executebuiltin(f'RunPlugin({callurl})')
 	elif submenu == "search":
-		if menutype == 'movies':
-			tmdbMovieSearch(callurl,page,query)
-		elif menutype == 'tv':
-			tmdbTvSearch(callurl,page,query)
+		if query:
+			if mediatype == 'movie':
+				MovieSearch(callurl,page,query)
+			elif mediatype == 'tv':
+				TvSearch(callurl,page,query)
+			elif mediatype == 'person':
+				PersonSearch(callurl,page,query)
+		else:
+			Search(callurl,mediatype)
 	elif submenu == "usertmdb":
 		if menutype == 'main':
 			tmdbMenu()
@@ -623,9 +709,9 @@ if mode == 'addon':
 		elif menutype == 'signout':
 			tmdbSignOut()
 		elif menutype == 'tmdbmoviegetlist':
-			tmdbGetList(callurl,'moviegetvideo',"tmdb_api_call",'movie/{tmdbID}/videos',page,submenu,menutype,mediatype)
+			tmdbGetList(callurl,'getvideo',"tmdb_api_call",page,submenu,menutype,mediatype)
 		elif menutype == 'tmdbtvgetlist':
-			tmdbGetList(callurl,'tvgetvideo',"tmdb_api_call",'tv/{tmdbID}/videos',page,submenu,menutype,mediatype)
+			tmdbGetList(callurl,'getvideo',"tmdb_api_call",page,submenu,menutype,mediatype)
 		elif menutype == 'tmdbgetlists':
 			tmdbGetLists(callurl,page,'list/{list_id}')
 		elif menutype == 'tmdbgetlistdetails':
@@ -641,4 +727,4 @@ elif mode == 'account':
 
 
 
-xbmcplugin.endOfDirectory(addon_handle)
+

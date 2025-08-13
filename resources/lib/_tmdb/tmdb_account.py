@@ -74,7 +74,7 @@ class TMDB_Account():
 			'POST',
 			'list',
 			_params={
-				'session_id':self.session_id},
+				"session_id":self.session_id},
 			_json=payload,
 			_headers={
 				"content-type": "application/json"})
@@ -87,7 +87,7 @@ class TMDB_Account():
 			'POST',
 			path,
 			_params={
-				'session_id':self.session_id
+				"session_id":self.session_id
 					},
 			_json={
 				'media_id':tmdb_id
@@ -145,38 +145,61 @@ class TMDB_Account():
 
 	def Favorites(self,account_id,tmdb_id,action,media_type):
 		path = f'account/{account_id}/favorite'
-		data,keys = self._Session(
-			'POST',
-			path,
-			_params={
-				'session_id':self.session_id
-					},
-			_json={
-				'media_type': media_type,
-				'media_id': tmdb_id,
-				'favorite': action
-					},
-			_headers={
-				'content-type':'application/json'
-					})
+		success = False
+		retries = 0
+		max_tries = 5
+		sleeptime = 200
+		while not success and retries <= max_tries:
+			retries += 1
+			data,keys = self._Session(
+				'POST',
+				path,
+				_params={
+					"session_id":self.session_id
+						},
+				_json={
+					"media_type": media_type,
+					"media_id": tmdb_id,
+					"favorite": action
+						},
+				_headers={
+					"content-type":'application/json'
+						})
+			success = data.get('success')
+			if not success:
+				xbmc.sleep(sleeptime)
+				Log(f'{data} retries = {retries} sleeptime = {sleeptime}')
+				sleeptime *= 2
+				
 		return data
 
 	def Watchlist(self,account_id,tmdb_id,action,media_type):
 		path = f'account/{account_id}/watchlist'
-		data,keys = self._Session(
-			'POST',
-			path,
-			_params={
-				'session_id':self.session_id
-					},
-			_json={
-				'media_type': media_type,
-				'media_id': tmdb_id,
-				'watchlist': action
-					},
-			_headers={
-				'content-type':'application/json'
-					})
+		success = False
+		retries = 0
+		max_tries = 5
+		sleeptime = 200
+		while not success and retries <= max_tries:
+			retries += 1
+			data,keys = self._Session(
+				'POST',
+				path,
+				_params={
+					"session_id":self.session_id
+						},
+				_json={
+					"media_type": media_type,
+					"media_id": tmdb_id,
+					"watchlist": action
+						},
+				_headers={
+					"content-type":'application/json'
+						})
+			success = data.get('success')
+			if not success:
+				xbmc.sleep(sleeptime)
+				Log(f'{data} retries = {retries} sleeptime = {sleeptime}')
+				sleeptime *= 2
 		return data
 
 

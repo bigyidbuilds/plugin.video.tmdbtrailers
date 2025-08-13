@@ -11,7 +11,14 @@
 			</group>
 		</category>
 		<category id="youtube" label="30004" help="">
-			<group id="1" label="30005">
+			<group id="1" label="30000">
+				<setting id="youtube.general.useaddon" type="boolean" label="30030">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+			<group id="2" label="30005">
 				<setting id="youtube.api.key"  type="string" label="30006" help="">
 					<level>0</level>
 					<default/>
@@ -21,6 +28,9 @@
 					<control type="edit" format="string">
 						<heading>30007</heading>
 					</control>
+					<dependencies>
+						<dependency type="visible" setting="youtube.general.useaddon">false</dependency>
+					</dependencies>
 				</setting>
 				<setting id="youtube.api.clientid"  type="string" label="30008" help="">
 					<level>0</level>
@@ -31,6 +41,9 @@
 					<control type="edit" format="string">
 						<heading>30009</heading>
 					</control>
+					<dependencies>
+						<dependency type="visible" setting="youtube.general.useaddon">false</dependency>
+					</dependencies>
 				</setting>
 				<setting id="youtube.api.clientsecret"  type="string" label="30010" help="">
 					<level>0</level>
@@ -41,6 +54,9 @@
 					<control type="edit" format="string">
 						<heading>30011</heading>
 					</control>
+					<dependencies>
+						<dependency type="visible" setting="youtube.general.useaddon">false</dependency>
+					</dependencies>
 				</setting>
 			</group>
 		</category>

@@ -134,6 +134,10 @@ msgctxt "#30029"
 msgid "TMDB set language"
 msgstr ""
 
+msgctxt "#30030"
+msgid "Use Youtube addon for api key and settings"
+msgstr ""
+
 ###---------- addon strings ----------###
 
 msgctxt "#32000"
@@ -328,14 +332,21 @@ msgctxt "#32047"
 msgid "Select action"
 msgstr ""
 
+####--------Do not change {name} used for formatting--------#####
 msgctxt "#32048"
 msgid "Remove from TMDB list {name}"
 msgstr ""
 
+####--------Do not change {name} used for formatting--------#####
 msgctxt "#32049"
 msgid "Add to TMDB list {name}"
 msgstr ""
 
 msgctxt "#32050"
 msgid "Remove item from TMDB list"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32051"
+msgid "Search for {name}"
 msgstr ""
