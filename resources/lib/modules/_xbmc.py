@@ -12,6 +12,8 @@ from urllib.parse import urlunparse
 
 
 
+
+
 __addon__ = 'plugin.video.tmdbtrailers' 
 
 
@@ -127,6 +129,8 @@ def ListItemBasic(label,label2=None,icon=None,fanart=None,properties=None,isfold
 	li.setIsFolder(isfolder)
 	return li 
 
+
+
 def ListItemTMDBList(item,IsFolder):
 	def ImageUrl(path):
 		return urlunparse(('https','image.tmdb.org',f't/p/original/{path}',None,None,None))
@@ -137,6 +141,32 @@ def ListItemTMDBList(item,IsFolder):
 		return li
 	else:
 		return None
+
+
+
+def ListitemTMDBCollection(item,IsFolder):
+	def ImageUrl(path):
+		return urlunparse(('https','image.tmdb.org',f't/p/original/{path}',None,None,None))
+	if isinstance(item,dict):
+		li = xbmcgui.ListItem(item.get('name'))
+		li.setProperty('Properties',json.dumps(item))
+		artwork = {}
+		backdrop_path = item.get('backdrop_path')
+		poster_path = item.get('poster_path')
+		if backdrop_path:
+			artwork.update({'fanart':ImageUrl(backdrop_path)})
+		if poster_path:
+			poster_pathURL = ImageUrl(poster_path)
+			artwork.update({'poster':poster_pathURL,'thumb':poster_pathURL})
+		if backdrop_path or poster_path:
+			li.setArt(artwork)
+		li.setIsFolder(IsFolder)
+		vi = li.getVideoInfoTag()
+		vi.setPlot(item.get('overview'))
+		return li
+	else:
+		return None
+
 
 
 

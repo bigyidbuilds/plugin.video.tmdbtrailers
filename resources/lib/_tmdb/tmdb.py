@@ -13,6 +13,8 @@ from resources.lib.modules._xbmc import Log,_AddonSettings,_AddonLocalStr
 from resources.lib.modules.utils import TodaysDate
 from resources.lib.modules import exceptions
 
+from . import tmdb_utils
+
 class TMDB_API():
 	"""docstring for TMDB_API"""
 
@@ -40,6 +42,7 @@ class TMDB_API():
 		self.headers       = {"accept": "application/json","Authorization":f"Bearer {self.token}"}
 		self.session       = requests.Session()
 		self.session.headers.update(self.headers)
+		self.session.params.update({'include_adult':self.AddonSettings.getBool('tmdb.user.adultsearch')})
 		self.error_keys = ['success', 'status_code', 'status_message']
 
 	def _Session(self,url,headers=None,params=None):
@@ -69,6 +72,37 @@ class TMDB_API():
 		else:
 			return False
 
+	def DiscoverMovies(self,page,params=None,**kwargs):
+		path = 'discover/movie'
+		_params = {'page':page,'language':self.Language,'sort_by':'popularity.desc'}
+		if params:
+			_params.update({**params})
+		elif not params:
+			certification = kwargs.get('certification')
+			if certification:
+				_params.update({'certification':certification})
+
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params=_params)
+		if data:
+			return data
+		else:
+			return None
+
+	def DiscoverTv(self,page,params=None,**kwargs):
+		path = 'discover/tv'
+		_params = {'page':page,'language':self.Language,'sort_by':'popularity.desc'}
+		if params:
+			_params.update({**params})
+		elif not params:
+			certification = kwargs.get('certification')
+			if certification:
+				_params.update({'certification':certification})
+
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params=_params)
+		if data:
+			return data
+		else:
+			return None
 
 	def GetList(self,path,page):
 		'''returns json object  consiting of "results" 'page' "total_pages" main keys  
@@ -164,7 +198,9 @@ class TMDB_API():
 	def GetItem(self,path):
 		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
 
-
+	def GetGenres(self,media_type):
+		path = f'genre/{media_type}/list'
+		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
 
 	def GetVidoes(self,tmdb_id,media_type):
 		if media_type == 'movie':
@@ -174,25 +210,30 @@ class TMDB_API():
 		else:
 			return None
 		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
-		# if ret:
-		# 	data = ret.get('results')
-		# 	if listitems:
-		# 		pass
-		# 	else:
-		# 		return data
-		# else:
-		# 	return
 
-	def Search(self,query,path,page,listitems=True):
+
+	def Search(self,query,path,page):
 		return  self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params={'query':quote(query),'page':page})
-		# if ret:
-		# 	data = ret.get('results')
-		# 	if listitems:
-		# 		return self.ListItems(data,True)
-		# 	else:
-		# 		return data
-		# else:
-		# 	return
+
+	def SearchCollectionsAll(self,query):
+		path = 'search/collection'
+		page = 1
+		_params = {'query':quote(query),'language':self.Language,'page':page}
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
+		if data:
+			page+=1
+			total_pages = data.get('total_pages')
+			results = data.get('results')
+			while page <= total_pages:
+				_params = {'query':quote(query),'language':self.Language,'page':page}
+				_data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
+				results.extend(_data.get('results'))
+				page=+1
+			return data
+		else:
+			return None
+
+
 
 	def ListItems(self,data,IsFolder):
 		items = []

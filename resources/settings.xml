@@ -9,6 +9,20 @@
 					<control type="toggle"/>
 				</setting>
 			</group>
+			<group id="2" label="30035" help="">
+				<setting id="general.icon.color" type="string" label="30031">
+					<level>0</level>
+					<default>white</default>
+					<constraints>
+						<options>
+							<option label="30032">black</option>
+							<option label="30033">white</option>
+							<option label="30034">orange</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+			</group>
 		</category>
 		<category id="youtube" label="30004" help="">
 			<group id="1" label="30000">

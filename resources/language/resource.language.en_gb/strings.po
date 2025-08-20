@@ -138,6 +138,29 @@ msgctxt "#30030"
 msgid "Use Youtube addon for api key and settings"
 msgstr ""
 
+msgctxt "#30031"
+msgid "Colour scheme for icons"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Black"
+msgstr ""
+
+msgctxt "#30033"
+msgid "White"
+msgstr ""
+
+msgctxt "#30034"
+msgid "orange"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Personalize"
+msgstr ""
+
+
+
+
 ###---------- addon strings ----------###
 
 msgctxt "#32000"
@@ -349,4 +372,44 @@ msgstr ""
 ####--------Do not change {name} used for formatting--------#####
 msgctxt "#32051"
 msgid "Search for {name}"
+msgstr ""
+
+msgctxt "#32052"
+msgid "Genres"
+msgstr ""
+
+msgctxt "#32053"
+msgid "Add genre"
+msgstr ""
+
+msgctxt "#32054"
+msgid "Remove genre"
+msgstr ""
+
+msgctxt "#32055"
+msgid "Select genres to add"
+msgstr ""
+
+msgctxt "#32056"
+msgid "Select genres to remove"
+msgstr ""
+
+msgctxt "#32057"
+msgid "Collections"
+msgstr ""
+
+msgctxt "#32058"
+msgid "Add collection"
+msgstr ""
+
+msgctxt "#32059"
+msgid "Remove collection"
+msgstr ""
+
+msgctxt "#32060"
+msgid "Select collections to add"
+msgstr ""
+
+msgctxt "#32061"
+msgid "select collections to remove"
 msgstr ""

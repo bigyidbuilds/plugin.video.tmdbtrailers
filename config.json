@@ -32,6 +32,16 @@
                 "mediatype": null
             },
             {
+                "label": "Collections",
+                "localstr": 32057,
+                "icon": "path/collection.png",
+                "fanart": null,
+                "submenu": "collectionslists",
+                "callurl": null,
+                "type": "collections",
+                "mediatype": null
+            },
+            {
                 "label": "MyTMDB",
                 "localstr": 32018,
                 "icon": "profile/mytmdb.png",
@@ -92,6 +102,15 @@
                 "callurl": "trending/movie/day",
                 "type": "tmdb_api_call",
                 "mediatype": "movie"
+            },
+            {   "label": "Genres",
+                "localstr":32052,
+                "icon":"path/movie.png",
+                "fanart": null,
+                "submenu":"genreslist",
+                "callurl":null,
+                "type":"genres",
+                "mediatype":"movie"
             },
             {
                 "label": "Search",
@@ -154,6 +173,15 @@
                 "callurl": "trending/tv/day",
                 "type": "tmdb_api_call",
                 "mediatype": "tv"
+            },
+            {   "label": "Genres",
+                "localstr":32052,
+                "icon":"path/tvshow.png",
+                "fanart": null,
+                "submenu":"genreslist",
+                "callurl":null,
+                "type":"genres",
+                "mediatype":"tv"
             },
             {
                 "label": "Search",
@@ -290,7 +318,13 @@
             "filepath": "addon_profile",
             "ext": "json",
             "base_dict": {
-                "menus": {}
+                "menus": {
+                    "genres":{
+                        "movie":[],
+                        "tv":[]
+                    },
+                    "collections":[]
+                }
             }
         },
         {
