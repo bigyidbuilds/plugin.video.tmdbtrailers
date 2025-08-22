@@ -413,3 +413,31 @@ msgstr ""
 msgctxt "#32061"
 msgid "select collections to remove"
 msgstr ""
+
+msgctxt "#32062"
+msgid "Companies"
+msgstr ""
+
+msgctxt "#32063"
+msgid "Add company"
+msgstr ""
+
+msgctxt "#32064"
+msgid "Remove company"
+msgstr ""
+
+msgctxt "#32065"
+msgid "Select company to add"
+msgstr ""
+
+msgctxt "#32066"
+msgid "Select company to remove"
+msgstr ""
+
+msgctxt "#32067"
+msgid "No results found from search"
+msgstr ""
+
+msgctxt "#32068"
+msgid "Select media type to view"
+msgstr ""

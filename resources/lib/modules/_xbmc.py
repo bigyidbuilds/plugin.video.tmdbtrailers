@@ -142,6 +142,25 @@ def ListItemTMDBList(item,IsFolder):
 	else:
 		return None
 
+def ListItemTMDBCompany(item,IsFolder):
+	def ImageUrl(path):
+		return urlunparse(('https','image.tmdb.org',f't/p/original/{path}',None,None,None))
+	if isinstance(item,dict):
+		li = xbmcgui.ListItem(item.get('name'))
+		li.setProperty('Properties',json.dumps(item))
+		logo_path = item.get('logo_path')
+		if logo_path:
+			logo_pathURL = ImageUrl(logo_path)
+			li.setArt({'poster':logo_pathURL,'thumb':logo_pathURL})
+		li.setIsFolder(IsFolder)
+		vi = li.getVideoInfoTag()
+		desc = item.get('description')
+		if desc:
+			vi.setPlot(desc)
+		return li
+	else:
+		return None
+
 
 
 def ListitemTMDBCollection(item,IsFolder):

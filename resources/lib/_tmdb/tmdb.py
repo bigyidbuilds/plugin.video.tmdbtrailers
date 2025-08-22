@@ -53,9 +53,10 @@ class TMDB_API():
 				self.session.params.update({k: v for k, v in params.items() if v is not None})
 			u = self.session.get(url)
 			data = u.json()
-			keys = list(data.keys())
-			if all(keys in data for keys in self.error_keys):
-				raise exceptions.TMDBAPI_Response_Exception(message='Response Error',errors_dict=data,url=u.url)
+			if isinstance(data,dict):
+				keys = list(data.keys())
+				if all(keys in data for keys in self.error_keys):
+					raise exceptions.TMDBAPI_Response_Exception(message='Response Error',errors_dict=data,url=u.url)
 			return data
 		except exceptions.TMDBAPI_Response_Exception as e:
 			Log(e.logmessage)
@@ -71,6 +72,22 @@ class TMDB_API():
 			return True
 		else:
 			return False
+
+	def CollectionItems(self,collection_id):
+		path = f'/collection/{collection_id}'
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'language':self.Language})
+		if data:
+			return data
+		else:
+			return None
+
+	def ConfigCountry(self):
+		path = 'configuration/countries'
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'language':self.Language})
+		if data:
+			return data
+		else:
+			return None
 
 	def DiscoverMovies(self,page,params=None,**kwargs):
 		path = 'discover/movie'
@@ -218,8 +235,8 @@ class TMDB_API():
 	def SearchCollectionsAll(self,query):
 		path = 'search/collection'
 		page = 1
-		_params = {'query':quote(query),'language':self.Language,'page':page}
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
+		params = {'query':quote(query),'language':self.Language,'page':page}
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=params)
 		if data:
 			page+=1
 			total_pages = data.get('total_pages')
@@ -228,7 +245,25 @@ class TMDB_API():
 				_params = {'query':quote(query),'language':self.Language,'page':page}
 				_data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
 				results.extend(_data.get('results'))
-				page=+1
+				page+=1
+			return data
+		else:
+			return None
+
+	def SearchCompanyAll(self,query):
+		path = 'search/company'
+		page = 1
+		params = {'query':quote(query),'language':self.Language,'page':page}
+		data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=params)
+		if data:
+			page+=1
+			total_pages = data.get('total_pages')
+			results = data.get('results')
+			while page <= total_pages:
+				_params = {'query':quote(query),'language':self.Language,'page':page}
+				_data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
+				results.extend(_data.get('results'))
+				page+=1
 			return data
 		else:
 			return None

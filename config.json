@@ -42,6 +42,16 @@
                 "mediatype": null
             },
             {
+                "label":"Companies",
+                "localstr":32062,
+                "icon":"path/company.png",
+                "fanart":null,
+                "submenu":"companylists",
+                "callurl":null,
+                "type":"company",
+                "mediatype":null
+            },
+            {
                 "label": "MyTMDB",
                 "localstr": 32018,
                 "icon": "profile/mytmdb.png",
@@ -119,7 +129,7 @@
                 "fanart": null,
                 "submenu": "search",
                 "callurl": "search/movie",
-                "type": "movies",
+                "type": "search",
                 "mediatype": "movie"
             }
         ],
@@ -190,7 +200,7 @@
                 "fanart": null,
                 "submenu": "search",
                 "callurl": "search/tv",
-                "type": "tv",
+                "type": "search",
                 "mediatype": "tv"
             }
         ],
@@ -212,7 +222,7 @@
                 "fanart": null,
                 "submenu": "search",
                 "callurl": "search/person",
-                "type": "person",
+                "type": "search",
                 "mediatype": "person"
             }
         ],
@@ -323,7 +333,8 @@
                         "movie":[],
                         "tv":[]
                     },
-                    "collections":[]
+                    "collections":[],
+                    "company":[]
                 }
             }
         },
