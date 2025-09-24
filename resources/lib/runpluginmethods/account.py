@@ -31,6 +31,7 @@ class Account():
 	8.  RunPlugin(plugin://plugin.video.tmdbtrailers/?mode=account&action=clear_list&list_id=1234)
 	9.  RunPlugin(plugin://plugin.video.tmdbtrailers/?mode=account&action=delete_list&list_id=1234)
 	10. RunPlugin(plugin://plugin.video.tmdbtrailers/?mode=account&&action=delete_listitem&list_id=1234&tmdbid=123456)
+	11. RunPlugin(plugin://plugin.video.tmdbtrailers/?mode=account&&action=edit_lists&media_type=movie&tmdbid=123456)
 
 
 	sys.argv
@@ -52,6 +53,7 @@ class Account():
 			clear_list: required params list_id (id of list)
 			delete_list: required params list_id (id of list)
 			delete_listitem: required params list_id(id of list), tmdbid(id of tmdb media)
+			edit_list: required params media_type(movie or tv),tmdbid(id of tmdb media)
 
 	"""
 	def __init__(self,sysargv):
