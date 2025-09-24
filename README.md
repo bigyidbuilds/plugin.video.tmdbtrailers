@@ -23,10 +23,12 @@
 
 ### action
 available actions:
+
 | Action | Details | Required params |
-| user_details: | Pulls account details from TMDB and sets relative settings | |
-| sigin: | sign in and create session id | |
-| signout: | sign out and delete session id | |
+|--------|---------|-----------------|
+| user_details: | Pulls account details from TMDB and sets relative settings | None |
+| sigin: | sign in and create session id | None |
+| signout: | sign out and delete session id | None |
 | favorite_add: | Add to tmdb favorites |media_type(movie or tv),tmdbid(id of tmdb media) |
 | favorite_remove: | Remove from favorites | media_type(movie or tv),tmdbid(id of tmdb media) |
 | watchlist_add: | Add to watch list | media_type(movie or tv),tmdbid(id of tmdb media) |
