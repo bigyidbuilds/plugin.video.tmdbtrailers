@@ -14,6 +14,7 @@ from resources.lib.modules.utils import TodaysDate
 from resources.lib.modules import exceptions
 
 from . import tmdb_utils
+from . import tmdb_var
 
 class TMDB_API():
 	"""docstring for TMDB_API"""
@@ -23,26 +24,10 @@ class TMDB_API():
 
 	def __init__(self,token):
 		super(TMDB_API, self).__init__()
-		self.AddonSettings = _AddonSettings('plugin.video.tmdbtrailers')
-		lang = self.AddonSettings.getString('tmdb.language')
-		if lang == 'xbmc':
-			self.Language = xbmc.getInfoLabel('System.Language')
-		elif lang == 'tmdb':
-			l = self.AddonSettings.getString('tmdb.user.defaultlanguage')
-			if l != '':
-				self.Language == l
-			else:
-				self.Language = 'en-US'
-		else:
-			self.Language = 'en-US'
 		self.token         = token
-		self.scheme        = 'https'
-		self.netloc        = 'api.themoviedb.org'
-		self.apiversion    = '3'
 		self.headers       = {"accept": "application/json","Authorization":f"Bearer {self.token}"}
 		self.session       = requests.Session()
 		self.session.headers.update(self.headers)
-		self.session.params.update({'include_adult':self.AddonSettings.getBool('tmdb.user.adultsearch')})
 		self.error_keys = ['success', 'status_code', 'status_message']
 
 	def _Session(self,url,headers=None,params=None):
@@ -65,33 +50,40 @@ class TMDB_API():
 			Log(e)
 			return None
 
+	def _BuildUrl(self,path):
+		return urlunparse((tmdb_var.SCHEME,tmdb_var.NETLOC,f'/{tmdb_var.APIVERISON}/{path}',None,None,None))
+
 	def CheckListSatus(self,list_id,tmdb_id):
+		"""Required params: language, movie_id"""
 		path = f'list/{list_id}/item_status'
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'movie_id':tmdb_id})
+		data = self._Session(self._BuildUrl(path),params={'movie_id':tmdb_id,'language':tmdb_var.LANGUAGE})
 		if data.get('item_present'):
 			return True
 		else:
 			return False
 
 	def CollectionItems(self,collection_id):
+		"""Required params: language"""
 		path = f'/collection/{collection_id}'
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'language':self.Language})
+		data = self._Session(self._BuildUrl(path),params={'language':tmdb_var.LANGUAGE})
 		if data:
 			return data
 		else:
 			return None
 
 	def ConfigCountry(self):
+		"""Required params: language"""
 		path = 'configuration/countries'
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'language':self.Language})
+		data = self._Session(self._BuildUrl(path),params={'language':tmdb_var.LANGUAGE})
 		if data:
 			return data
 		else:
 			return None
 
 	def DiscoverMovies(self,page,params=None,**kwargs):
+		"""Required params: language,include_adult"""
 		path = 'discover/movie'
-		_params = {'page':page,'language':self.Language,'sort_by':'popularity.desc'}
+		_params = {'page':page,'language':tmdb_var.LANGUAGE,'sort_by':'popularity.desc','include_adult':tmdb_var.ADULTSEARCH}
 		if params:
 			_params.update({**params})
 		elif not params:
@@ -99,15 +91,16 @@ class TMDB_API():
 			if certification:
 				_params.update({'certification':certification})
 
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params=_params)
+		data = self._Session(self._BuildUrl(path),params=_params)
 		if data:
 			return data
 		else:
 			return None
 
 	def DiscoverTv(self,page,params=None,**kwargs):
+		"""Required params: language include_adult"""
 		path = 'discover/tv'
-		_params = {'page':page,'language':self.Language,'sort_by':'popularity.desc'}
+		_params = {'page':page,'language':tmdb_var.LANGUAGE,'sort_by':'popularity.desc','include_adult':tmdb_var.ADULTSEARCH}
 		if params:
 			_params.update({**params})
 		elif not params:
@@ -115,14 +108,16 @@ class TMDB_API():
 			if certification:
 				_params.update({'certification':certification})
 
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params=_params)
+		data = self._Session(self._BuildUrl(path),params=_params)
 		if data:
 			return data
 		else:
 			return None
 
 	def GetList(self,path,page):
-		'''returns json object  consiting of "results" 'page' "total_pages" main keys  
+		''' Required params: language
+
+		returns json object  consiting of "results" 'page' "total_pages" main keys  
 
 		page is int of page number wanted in return 
 
@@ -154,96 +149,55 @@ class TMDB_API():
 		path = person/popular
 		'''
 		 
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)),params={'page':page,'language':self.Language})
+		data = self._Session(self._BuildUrl(path),params={'page':page,'language':tmdb_var.LANGUAGE})
 		if data:
 			return data
 		else:
 			return None
 
 
-		# if data:
-		# 	try:
-		# 		keys = list(data.keys())
-		# 		page = data.get('page',1)
-		# 		pages = data.get('total_pages',1)
-		# 		if not any(key in self.req_keys_list for key in keys):
-		# 			raise exceptions.TMDBAPI_KeyError_Exception('Key Error',','.join(req_keys_list),','.join(keys))
-		# 		if 'results' in keys:
-		# 			data = data.get('results')
-		# 			if listitems:
-		# 				return self.ListItems(data,True),page,pages
-		# 		elif all(keys in data for keys in ['cast','crew']):
-		# 			cast = data.get('cast')
-		# 			crew = data.get('crew')
-		# 			_all = cast+crew
-		# 			if listitems:
-		# 				items = []
-		# 				for a in _all:
-		# 					for k,v in a.items():
-		# 						if k == 'release_date' and v == '':
-		# 							a.update({'release_date':'9999-12-31'})
-		# 						elif  k == 'first_air_date' and v == '':
-		# 							a.update({'first_air_date':'9999-12-31'})
-		# 				_all = sorted(_all, key=lambda d: d.get('release_date',d.get('first_air_date')),reverse=True)
-		# 				m = []
-		# 				t = []
-		# 				clean_all = []
-		# 				for a in _all:
-		# 					if a.get('release_date') == '9999-12-31':
-		# 						a.pop('release_date',None)
-		# 					elif a.get('first_air_date') == '9999-12-31':
-		# 						a.pop('first_air_date',None)
-		# 					media_type = a.get('media_type')
-		# 					tmdbid = a.get('id')
-		# 					if media_type == 'movie':
-		# 						if not tmdbid in m:
-		# 							m.append(tmdbid)
-		# 							clean_all.append(a)
-		# 					elif media_type == 'tv':
-		# 						if not tmdbid in t:
-		# 							t.append(tmdbid)
-		# 							clean_all.append(a)
-		# 				return self.ListItems(clean_all,True),page,pages
-		# 		else:
-		# 			return data,page,pages
-		# 	except exceptions.TMDBAPI_KeyError_Exception as e:
-		# 		Log(e.logmessage)
-		# 		return None,page,pages
-		# else:
-		# 	return None,page,pages
 
 	def GetItem(self,path):
-		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
+		"""Required params: language"""
+		return  self._Session(self._BuildUrl(path),params={'language':tmdb_var.LANGUAGE})
 
 	def GetGenres(self,media_type):
+		"""Required params: language"""
 		path = f'genre/{media_type}/list'
-		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
+		return  self._Session(self._BuildUrl(path),params={'language':tmdb_var.LANGUAGE})
 
 	def GetVidoes(self,tmdb_id,media_type):
+		"""Required params: language"""
 		if media_type == 'movie':
 			path = f'movie/{tmdb_id}/videos'
 		elif media_type == 'tv':
 			path = f'tv/{tmdb_id}/videos'
 		else:
 			return None
-		return  self._Session(urlunparse((self.scheme,self.netloc,f'/{self.apiversion}/{path}',None,None,None)))
+		return  self._Session(self._BuildUrl(path),params={'language':tmdb_var.LANGUAGE})
 
 
 	def Search(self,query,path,page):
-		return  self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params={'query':quote(query),'page':page})
+		"""Required params: language include_adult"""
+		return  self._Session(self._BuildUrl(path),params={
+															'query':quote(query),
+															'page':page,
+															'language':tmdb_var.LANGUAGE,
+															'include_adult':tmdb_var.ADULTSEARCH})
 
 	def SearchCollectionsAll(self,query):
+		"""Required params: language include_adult"""
 		path = 'search/collection'
 		page = 1
-		params = {'query':quote(query),'language':self.Language,'page':page}
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=params)
+		params = {'query':quote(query),'language':tmdb_var.LANGUAGE,'page':page,'include_adult':tmdb_var.ADULTSEARCH}
+		data = self._Session(self._BuildUrl(path),params=params)
 		if data:
 			page+=1
 			total_pages = data.get('total_pages')
 			results = data.get('results')
 			while page <= total_pages:
-				_params = {'query':quote(query),'language':self.Language,'page':page}
-				_data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
+				_params = {'query':quote(query),'language':tmdb_var.LANGUAGE,'page':page,'include_adult':tmdb_var.ADULTSEARCH}
+				_data = self._Session(self._BuildUrl(path),params=_params)
 				results.extend(_data.get('results'))
 				page+=1
 			return data
@@ -253,96 +207,18 @@ class TMDB_API():
 	def SearchCompanyAll(self,query):
 		path = 'search/company'
 		page = 1
-		params = {'query':quote(query),'language':self.Language,'page':page}
-		data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=params)
+		params = {'query':quote(query),'page':page}
+		data = self._Session(self._BuildUrl(path),params=params)
 		if data:
 			page+=1
 			total_pages = data.get('total_pages')
 			results = data.get('results')
 			while page <= total_pages:
-				_params = {'query':quote(query),'language':self.Language,'page':page}
-				_data = self._Session(urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None)),params=_params)
+				_params = {'query':quote(query),'page':page}
+				_data = self._Session(self._BuildUrl(path),params=_params)
 				results.extend(_data.get('results'))
 				page+=1
 			return data
 		else:
 			return None
-
-
-
-	def ListItems(self,data,IsFolder):
-		items = []
-		if isinstance(data,list):
-			for item in data:
-				listitem = self.CreateListitem(item,IsFolder)
-				if listitem:
-					items.append(listitem)
-			return items
-		else:
-			return self.CreateListitem(data,IsFolder)
-
-	def CreateListitem(self,item,IsFolder):
-		if isinstance(item,dict):
-			kw = list(item.keys())
-			if 'title' in kw:
-				label = item.get('title')
-			elif not 'title' in kw and 'original_title' in kw:
-				label = item.get('original_title')
-			elif 'name' in kw:
-				label = item.get('name')
-			elif not 'name' in kw and 'original_name' in kw:
-				label = item.get('original_name')
-			else:
-				label = _AddonLocalStr('plugin.video.tmdbtrailers',32015)
-			if 'profile_path' in kw:
-				poster = self.ImageUrl(item.get('profile_path'))
-			elif 'poster_path' in kw:
-				poster = self.ImageUrl(item.get('poster_path'))
-			else:
-				poster = None
-			if 'backdrop_path' in kw:
-				fanart = self.ImageUrl(item.get('backdrop_path'))
-			else:
-				fanart = None
-			li = xbmcgui.ListItem(label)
-			li.setArt({'poster':poster,'fanart':fanart,'thumb':poster})
-			# for k,v in item.items():
-			li.setProperty('Properties',json.dumps(item))
-			Log(li.getProperty('media_type'))
-			li.setIsFolder(IsFolder)
-			vi = li.getVideoInfoTag()
-			if 'overview' in kw:
-				overview = item.get('overview')
-			else:
-				overview = None
-			if 'release_date' in kw:
-				premiered = item.get('release_date')
-			else:
-				premiered = None
-			if 'first_air_date' in kw:
-				airdate = item.get('first_air_date')
-			else:
-				airdate = None
-			if 'vote_average' in kw and 'vote_count' in kw:
-				voteaverage = item.get('vote_average')
-				votecount = item.get('vote_count')
-			else:
-				voteaverage = None
-				votecount = None
-			if overview:
-				vi.setPlot(overview)
-			if premiered:
-				vi.setPremiered(premiered)
-			if airdate:
-				vi.setFirstAired(airdate)
-			if voteaverage and votecount:
-				vi.setRating(voteaverage,votecount,'tmdb',True)
-			vi.setUniqueID(json.dumps(item.get('id')),'tmdb',True)
-			return li
-		else:
-			return None
-
-
-	def ImageUrl(self,path):
-		return urlunparse((self.scheme,'image.tmdb.org',f't/p/original/{path}',None,None,None))
 

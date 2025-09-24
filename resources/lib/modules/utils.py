@@ -16,43 +16,6 @@ from ._xbmc import _translatePath,_AddonSettings,_AddonInfo
 __addon__ = 'plugin.video.tmdbtrailers'
 
 
-def _joinPath(filepath,filename):
-	return os.path.join(filepath,filename)
-
-def WriteJsonFile(filepath,filename=None,data=None):
-	filepath = _translatePath(filepath)
-	if filename:
-		path = _joinPath(filepath,filename)
-	else:
-		path = filepath
-	if xbmcvfs.exists(path):
-		with open(path,'w') as f:
-			json.dump(data,f,indent=4)
-
-
-def ReadJsonFile(filepath,filename=None,key=None):
-	filepath = _translatePath(filepath)
-	if filename:
-		path = _joinPath(filepath,filename)
-	else:
-		path = filepath
-	if xbmcvfs.exists(path):
-		with open(path) as f:
-			try:
-				data = json.load(f)
-				if key:
-					return data.get(key)
-				else:
-					return data
-			except ValueError as ve:
-				Log(f'file at {path} error {ve}')
-				return None
-			except Exception as exc:
-				Log(exc)
-				return None
-	else:
-		Log(f'file not found at {path}')
-		return None
 
 def ValidateJsonFile(filepath,filename,basedict):
 	'''needs amethod for if the user.json dicts have chabged that it saves the old verison'''
@@ -98,16 +61,3 @@ def TimeStamp(date_time=None,now=True):
 def TodaysDate():
 	return datetime.today().strftime('%Y-%m-%d')
 
-
-
-def GetListLoop(call,path,page):
-	items = []
-	def func(call,path,page):
-		_data,_page,_pages = call(path,page,listitems=False)
-		for _d in _data:
-			items.append(_d)
-		_page += 1
-		if _page <= _pages:
-			func(call,path,_page)
-	func(call,path,page)
-	return items

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window>
+	<defaultcontrol always="false">1000</defaultcontrol>
+	<menucontrol>0</menucontrol>
+	<backgroundcolor>0</backgroundcolor>
+	<animation effect="fade" time="200">WindowOpen</animation>
+	<animation effect="fade" time="200">WindowClose</animation>
+	<controls>
+		<control type="group">
+			<width>435</width>
+			<height>555</height>
+			<centerleft>50%</centerleft>
+			<centertop>50%</centertop>
+			<control type="image">
+				<texture border="5" flipy="true" flipx="false">black_background.png</texture>
+				<bordertexture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.border.color)">white_background.png</bordertexture>
+				<bordersize>5</bordersize>
+			</control>
+			<control type="group" id="1000">
+				<height>200</height>
+				<control type="image" id="1001">
+					<texture border="5" flipy="true" flipx="false" >white_background.png</texture>
+					<colordiffuse>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.header.color)]</colordiffuse>
+					<bordertexture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.border.color)">white_background.png</bordertexture>
+				<bordersize>5,5,5,0</bordersize>
+				</control>
+				<control type="label" id="1002">
+					<height>90</height>
+					<left>5</left>
+					<top>5</top>
+					<font>font13</font>
+					<label>test info</label>
+					<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.text.color)]</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+				</control>
+				<control type="label" id="1003">
+					<height>90</height>
+					<left>5</left>
+					<top>105</top>
+					<font>font13</font>
+					<label>test info eneter data</label>
+					<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.text.color)]</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+				</control>
+				<control type="button" id="1004">
+					<width>50</width>
+					<height>50</height>
+					<left>55r</left>
+					<top>5</top>
+					<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)">close.png</texturefocus>
+					<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)">close.png</texturenofocus>
+					<ondown>2000</ondown>
+				</control>
+			</control>
+			<control type="group">
+				<top>210</top>
+				<left>15</left>
+				<width>570</width>
+				<control type="grouplist" id="2000">
+					<height>75</height>
+					<itemgap>10</itemgap>
+					<scrolltime tween="sine" easing="out">200</scrolltime>
+					<orientation>horizontal</orientation>
+					<onup>1004</onup>
+					<ondown>3000</ondown>
+					<control type="button" id="2001">
+						<description>1</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="2002">
+						<description>2</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="2003">
+						<description>3</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="2004">
+						<description>clear</description>
+						<width>150</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+				</control>
+				<control type="grouplist" id="3000">
+					<top>85</top>
+					<height>75</height>
+					<itemgap>10</itemgap>
+					<scrolltime tween="sine" easing="out">200</scrolltime>
+					<orientation>horizontal</orientation>
+					<onup>2000</onup>
+					<ondown>4000</ondown>
+					<control type="button" id="3001">
+						<description>4</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="3002">
+						<description>5</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="3003">
+						<description>6</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="3004">
+						<description>backspace</description>
+						<width>150</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+				</control>
+				<control type="grouplist" id="4000">
+					<top>170</top>
+					<height>75</height>
+					<itemgap>10</itemgap>
+					<scrolltime tween="sine" easing="out">200</scrolltime>
+					<orientation>horizontal</orientation>
+					<onup>3000</onup>
+					<ondown>5000</ondown>
+					<control type="button" id="4001">
+						<description>7</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="4002">
+						<description>8</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="4003">
+						<description>9</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="4004">
+						<description>enter</description>
+						<width>150</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+				</control>
+				<control type="grouplist" id="5000">
+					<top>255</top>
+					<height>75</height>
+					<itemgap>10</itemgap>
+					<scrolltime tween="sine" easing="out">200</scrolltime>
+					<orientation>horizontal</orientation>
+					<onup>4000</onup>
+					<ondown></ondown>
+					<control type="button" id="5001">
+						<description>.</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="5002">
+						<description>0</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+					<control type="button" id="4003">
+						<description>.0</description>
+						<width>75</width>
+						<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.focus.color)" border="5">button.png</texturefocus>
+						<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.nofocus.color)" border="5">button.png</texturenofocus>
+						<label></label>
+						<font>font13</font>
+						<textcolor>FFFFFFFF</textcolor>
+						<focusedcolor>FFFFFFFF</focusedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+					</control>
+				</control>
+			</control>
+		</control>
+	</controls>
+</window>

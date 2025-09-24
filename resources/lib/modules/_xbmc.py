@@ -114,6 +114,30 @@ def CheckCreatePath(base_path,folders=None):
 		return success
 
 
+def ListitemYouTubeVideoItem(item,IsFolder):
+	if isinstance(item,dict):
+		localized = item.get('localized')
+		li = xbmcgui.ListItem(localized.get('title',item.get('title')))
+		vi = li.getVideoInfoTag()
+		vi.setPlot(localized.get(localized.get('description'),item.get('description')))
+		vi.setFirstAired(item.get('publishedAt'))
+		thumbnails = item.get('thumbnails')
+		artwork = {}
+		medium = thumbnails.get('medium',thumbnails.get('default'))
+		default  = thumbnails.get('default')
+		maxres = thumbnails.get('maxres',thumbnails.get('high',thumbnails.get('default')))
+		if medium:
+			artwork.update({'poster':medium.get('url')})
+		if default:
+			artwork.update({'thumb':default.get('url')})
+		if maxres:
+			artwork.update({'fanart':maxres.get('url')})
+		li.setArt(artwork)
+		li.setProperty('Properties',json.dumps(item))
+		li.setIsFolder(IsFolder)
+		return li
+	else:
+		return None
 
 
 

@@ -47,7 +47,7 @@ class Account():
 			favorite_remove: required params media_type(movie or tv),tmdbid(id of tmdb media)
 			watchlist_add: required params media_type(movie or tv),tmdbid(id of tmdb media)
 			watchlist_remove: required params media_type(movie or tv),tmdbid(id of tmdb media)
-			rate: required params media_type(movie or tv),tmdbid(id of tmdb media),rating(0-10 value as float 1 decimal place or '###' will call xbmc ui to enter a valve )
+			rate: required params media_type(movie or tv),tmdbid(id of tmdb media),rating(0-10 value as float 1 decimal place value must be dividable by 0.5 or '###' will call xbmc ui to enter a valve )
 			unrate: required params media_type(movie or tv),tmdbid(id of tmdb media)
 			clear_list: required params list_id (id of list)
 			delete_list: required params list_id (id of list)
@@ -262,16 +262,33 @@ class Account():
 
 	
 	def Rate(self,media_type,tmdbid,rating):
+		data = None
+		media_title = None
 		if rating == '###':
-			rating = self.dialog.input(_xbmc._AddonLocalStr(__addon__,32042), type=xbmcgui.INPUT_NUMERIC)
+			if media_type == 'movie':
+				path = f'movie/{tmdbid}'
+				kw = 'title'
+				_data = self.tmdbapi.GetItem(path)
+				media_title = _data.get(kw)
+			elif media_type == 'tv':
+				path = f'tv/{tmdbid}'
+				kw = 'name'
+				_data = self.tmdbapi.GetItem(path)
+				media_title = _data.get(kw)
+			else:
+				rating = None
+			from resources.lib.windows.rate_slider import RateSlider
+			rating = RateSlider(media_title)
 		if rating:
 			rating = float(rating)
 			if media_type == 'movie':
-				self.tmdbacc.RateMovie(tmdbid,rating)
+				data = self.tmdbacc.RateMovie(tmdbid,rating)
 				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
 			elif media_type == 'tv':
-				self.tmdbacc.RateTv(tmdbid,rating)
-				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)	
+				data = self.tmdbacc.RateTv(tmdbid,rating)
+				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+			if data:
+				self.Notification(data)	
 			xbmc.executebuiltin('Container.Refresh')
 
 	def unRate(self,media_type,tmdbid):

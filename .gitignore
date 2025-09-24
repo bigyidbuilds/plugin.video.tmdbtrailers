@@ -1,2 +1,4 @@
 *.pyc
 /_py_tester
+tmdb_token.py
+__pycache__

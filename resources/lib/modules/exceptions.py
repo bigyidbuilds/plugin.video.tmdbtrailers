@@ -46,4 +46,14 @@ class RUNPLUGIN_sysargv_var_Exception(Exception):
 		self.message
 		self.missing
 		self.logmessage = f'{self.message} values missing from sys.argv of run plugin method\n\tMissing values are {missing}'
+
+
+class YOUTUBEAPI_Response_Exception(Exception):
+
+	def __init__(self,code=None,message=None,status=None):
+		super().__init__()
+		self.code = code
+		self.message = message
+		self.status = status
+		self.logmessage = f'Error code {self.code}\nMessage {self.message}\nStatus {self.status}'
 						

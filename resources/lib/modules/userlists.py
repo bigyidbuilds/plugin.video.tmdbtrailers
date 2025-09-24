@@ -27,13 +27,6 @@ def BuildUserListsCache(file,session_id,account_id,bearer):
 		r = tmdbacc.GetListsAllItems(i.get('path'))
 		i.get('params').update(**r)
 	lists = cache_data.get('account_lists')
-	# p_keys = list(lists.keys())
-	# for p in p_keys:
-	# 	_list = lists.get(p).get('results')
-	# 	for _l in _list:
-	# 		list_id = _l.get('id')
-	# 		i = tmdbacc.GetListsAllItems(f'list/{list_id}')
-	# 		_l.update({'items':i})
 	_jsonfiles.WriteJsonFile(file,cache_data)
 
 
@@ -45,13 +38,6 @@ def ListCacheUpdate(file,session_id,account_id,bearer):
 	tmdbacc = TMDB_Account(bearer,session_id)
 	r = tmdbacc.GetListsAllItems(path)
 	lists.update(**r)
-	# p_keys = list(lists.keys())
-	# for p in p_keys:
-	# 	_list = lists.get(p).get('results')
-	# 	for _l in _list:
-	# 		list_id = _l.get('id')
-	# 		i = tmdbacc.GetListsAllItems(f'list/{list_id}')
-	# 		_l.update({'items':i})
 	_jsonfiles.WriteJsonFile(file,cache_data)
 
 
@@ -100,19 +86,6 @@ def RatedCacheUpdate(file,session_id,account_id,bearer,media_type):
 		data.update(**r)
 		_jsonfiles.WriteJsonFile(file,cache_data)
 
-
-# def IsInLists(file,keys=['account_lists']):
-# 	ret = []
-# 	cache_data = _jsonfiles.ReadJsonFile(file)
-# 	account_lists = data.get('account_lists')
-# 	for k,v in account_lists.items():
-# 		results = v.get('results')
-# 		for r in results:
-# 			d = {}
-# 			list_id = r.get('id')
-# 			name = r.get('name')
-# 			d.update({'list_id':list_id,'name':name})
-# 			ret.append(d)
 
 def IsIn(file,menu,media_type,tmdb_id):
 	data = _jsonfiles.ReadJsonFile(file,keys=[menu,media_type])

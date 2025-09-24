@@ -39,11 +39,11 @@ msgid "API settings"
 msgstr "API settings"
 
 msgctxt "#30006"
-msgid "API Key"
-msgstr "API Key"
+msgid "Use own TMDB token"
+msgstr ""
 
 msgctxt "#30007"
-msgid "Enter API Key"
+msgid "Do you wish to overwrite existing token?"
 msgstr ""
 
 msgctxt "#30008"
@@ -71,7 +71,7 @@ msgid "API Read Access Token"
 msgstr ""
 
 msgctxt "#30014"
-msgid "Enter API Read Access Token"
+msgid "Enter TMDB API Read Access Token"
 msgstr ""
 
 msgctxt "#30015"
@@ -159,7 +159,118 @@ msgid "Personalize"
 msgstr ""
 
 
+msgctxt "#30036"
+msgid "Maintenance"
+msgstr ""
 
+msgctxt "#30037"
+msgid "Search history"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Clear"
+msgstr ""
+
+msgctxt "#30039"
+msgid "User custom menus"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Clear all"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Clear genres"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Clear collections"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Clear companies"
+msgstr ""
+
+msgctxt "#30044"
+msgid "TMDB API Token set OK"
+msgstr ""
+
+msgctxt "#30045"
+msgid "TMDB API Token set Failed"
+msgstr = ""
+
+msgctxt "#30046"
+msgid "If reverting back to built in TMDB API token you will need to reload token"
+msgstr ""
+
+msgctxt "#30047"
+msgid "Do you wish to reload built-in TMDB API token?"
+msgstr ""
+
+msgctxt "#30048"
+msgid "Internal Error"
+msgstr ""
+
+
+msgctxt "#30049"
+msgid "Reload built-in TMDB API token"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Use YouTube API key for Video meta data"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Will display better details for Youtube videos then information from TMDB API"
+msgstr ""
+
+msgctxt "#30052"
+msgid "API key"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Enter API key"
+msgstr ""
+
+msgctxt "#30054"
+msgid "Customize customizable windows"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Border colour"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Header text colour"
+msgstr ""
+
+msgctxt "#30057"
+msgid "Header colour"
+msgstr ""
+
+msgctxt "#30058"
+msgid "Button focus colour"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Button no focus colour"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Button text focus colour"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Button text no focus colour"
+msgstr ""
+
+msgctxt "#30062"
+msgid "Header close button focus colour"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Header close button no focus colour"
+msgstr ""
 
 ###---------- addon strings ----------###
 
@@ -440,4 +551,38 @@ msgstr ""
 
 msgctxt "#32068"
 msgid "Select media type to view"
+msgstr ""
+
+msgctxt "#32069"
+msgid "Recommendations"
+msgstr ""
+
+msgctxt "#32070"
+msgid "Recommendations from favorites"
+msgstr ""
+
+msgctxt "#32071"
+msgid "Recommendations from rated"
+msgstr ""
+
+msgctxt "#32072"
+msgid "Recommendations from watchlist"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32073"
+msgid "Recommendations based upon '{name}'"
+msgstr ""
+
+msgctxt "#32074"
+msgid "Rate"
+msgstr ""
+
+msgctxt "#32075"
+msgid "Cancel"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32076"
+msgid "Set rating for {name}"
 msgstr ""

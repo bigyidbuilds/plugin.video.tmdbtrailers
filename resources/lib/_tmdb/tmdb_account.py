@@ -13,7 +13,7 @@ from resources.lib.modules.utils import TimeStamp
 from resources.lib.modules import exceptions
 # from resources.lib.modules.userjson import ReadUserDataFile,WriteJsonFile
 
-
+from . import tmdb_var
 
 class TMDB_Account():
 	"""docstring for TMDB_Account"""
@@ -25,9 +25,6 @@ class TMDB_Account():
 		super(TMDB_Account, self).__init__()
 		self.__addon__     = 'plugin.video.tmdbtrailers'
 		self.session_id    = session_id
-		self.scheme        = 'https'
-		self.netloc        = 'api.themoviedb.org'
-		self.apiversion    = '3'
 		self.headers       = {"accept": "application/json","Authorization":f"Bearer {tmdb_api_bearer}"}
 		self.session       = requests.Session()
 		self.session.headers.update(self.headers)
@@ -39,7 +36,7 @@ class TMDB_Account():
 
 	def _Session(self,method,path,_headers=None,_params=None,_json=None):
 		try:
-			URL = urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None))
+			URL = urlunparse((tmdb_var.SCHEME,tmdb_var.NETLOC,f'{tmdb_var.APIVERISON}/{path}',None,None,None))
 			if method == 'GET':
 				u = self.session.get(URL,headers=_headers,params=_params)
 			elif method == 'POST':

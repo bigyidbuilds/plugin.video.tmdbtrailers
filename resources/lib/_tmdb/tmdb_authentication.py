@@ -8,7 +8,7 @@ from urllib.parse import urlunparse
 from resources.lib.modules._xbmc import Log
 from resources.lib.modules import exceptions
 
-
+from . import tmdb_var
 
 
 class Tmdb_Authentication():
@@ -19,10 +19,6 @@ class Tmdb_Authentication():
 
 	def __init__(self,tmdb_api_bearer,tmdb_api_key=None):
 		super(Tmdb_Authentication, self).__init__()
-		self.__addon__     = 'plugin.video.tmdbtrailers'
-		self.scheme        = 'https'
-		self.netloc        = 'api.themoviedb.org'
-		self.apiversion    = '3'
 		self.headers       = {"accept": "application/json","Authorization":f"Bearer {tmdb_api_bearer}"}
 		self.session       = requests.Session()
 		self.session.headers.update(self.headers)
@@ -31,7 +27,7 @@ class Tmdb_Authentication():
 
 	def _Session(self,method,path,_headers=None,_params=None,_json=None):
 		try:
-			URL = urlunparse((self.scheme,self.netloc,f'{self.apiversion}/{path}',None,None,None))
+			URL = urlunparse((tmdb_var.SCHEME,tmdb_var.NETLOC,f'{tmdb_var.APIVERISON}/{path}',None,None,None))
 			if method == 'GET':
 				u = self.session.get(URL,headers=_headers,params=_params)
 			elif method == 'POST':

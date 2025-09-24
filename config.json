@@ -9,7 +9,8 @@
                 "submenu": "movies",
                 "callurl": null,
                 "type": "fixed",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "TV Shows",
@@ -19,7 +20,8 @@
                 "submenu": "tvshows",
                 "callurl": null,
                 "type": "fixed",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "People",
@@ -29,7 +31,8 @@
                 "submenu": "people",
                 "callurl": null,
                 "type": "fixed",
-                "mediatype": null
+                "mediatype": null,
+                "account_required": false
             },
             {
                 "label": "Collections",
@@ -39,27 +42,30 @@
                 "submenu": "collectionslists",
                 "callurl": null,
                 "type": "collections",
-                "mediatype": null
+                "mediatype": null,
+                "account_required": false
             },
             {
-                "label":"Companies",
-                "localstr":32062,
-                "icon":"path/company.png",
-                "fanart":null,
-                "submenu":"companylists",
-                "callurl":null,
-                "type":"company",
-                "mediatype":null
+                "label": "Companies",
+                "localstr": 32062,
+                "icon": "path/company.png",
+                "fanart": null,
+                "submenu": "companylists",
+                "callurl": null,
+                "type": "company",
+                "mediatype": null,
+                "account_required": false
             },
             {
                 "label": "MyTMDB",
                 "localstr": 32018,
                 "icon": "profile/mytmdb.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "main",
                 "callurl": null,
-                "type": "main",
-                "mediatype": null
+                "type": "usertmdb",
+                "mediatype": null,
+                "account_required": false
             }
         ],
         "movies": [
@@ -71,7 +77,8 @@
                 "submenu": "moviegetlist",
                 "callurl": "movie/now_playing",
                 "type": "tmdb_api_call",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Popular",
@@ -81,7 +88,8 @@
                 "submenu": "moviegetlist",
                 "callurl": "movie/popular",
                 "type": "tmdb_api_call",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Top rated",
@@ -91,7 +99,8 @@
                 "submenu": "moviegetlist",
                 "callurl": "movie/top_rated",
                 "type": "tmdb_api_call",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Upcoming",
@@ -101,7 +110,8 @@
                 "submenu": "moviegetlist",
                 "callurl": "movie/upcoming",
                 "type": "tmdb_api_call",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Trending",
@@ -111,16 +121,30 @@
                 "submenu": "moviegetlist",
                 "callurl": "trending/movie/day",
                 "type": "tmdb_api_call",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             },
-            {   "label": "Genres",
-                "localstr":32052,
-                "icon":"path/movie.png",
+            {
+                "label": "Genres",
+                "localstr": 32052,
+                "icon": "path/movie.png",
                 "fanart": null,
-                "submenu":"genreslist",
-                "callurl":null,
-                "type":"genres",
-                "mediatype":"movie"
+                "submenu": "genreslist",
+                "callurl": null,
+                "type": "genres",
+                "mediatype": "movie",
+                "account_required": false
+            },
+            {
+                "label": "Recommendations",
+                "localstr":32069,
+                "icon": "path/movie.png",
+                "fanart": null,
+                "submenu": "movierecommened",
+                "callurl": null,
+                "type": "fixed",
+                "mediatype": "movie",
+                "account_required": true
             },
             {
                 "label": "Search",
@@ -130,7 +154,8 @@
                 "submenu": "search",
                 "callurl": "search/movie",
                 "type": "search",
-                "mediatype": "movie"
+                "mediatype": "movie",
+                "account_required": false
             }
         ],
         "tvshows": [
@@ -142,7 +167,8 @@
                 "submenu": "tvgetlist",
                 "callurl": "tv/airing_today",
                 "type": "tmdb_api_call",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "on the air",
@@ -152,7 +178,8 @@
                 "submenu": "tvgetlist",
                 "callurl": "tv/on_the_air",
                 "type": "tmdb_api_call",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "Popular",
@@ -162,7 +189,8 @@
                 "submenu": "tvgetlist",
                 "callurl": "tv/popular",
                 "type": "tmdb_api_call",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "top rated",
@@ -172,7 +200,8 @@
                 "submenu": "tvgetlist",
                 "callurl": "tv/top_rated",
                 "type": "tmdb_api_call",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "Trending",
@@ -182,16 +211,30 @@
                 "submenu": "tvgetlist",
                 "callurl": "trending/tv/day",
                 "type": "tmdb_api_call",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             },
-            {   "label": "Genres",
-                "localstr":32052,
-                "icon":"path/tvshow.png",
+            {
+                "label": "Genres",
+                "localstr": 32052,
+                "icon": "path/tvshow.png",
                 "fanart": null,
-                "submenu":"genreslist",
-                "callurl":null,
-                "type":"genres",
-                "mediatype":"tv"
+                "submenu": "genreslist",
+                "callurl": null,
+                "type": "genres",
+                "mediatype": "tv",
+                "account_required": false
+            },
+            {
+                "label": "Recommendations",
+                "localstr":32069,
+                "icon": "path/tvshow.png",
+                "fanart": null,
+                "submenu": "tvrecommened",
+                "callurl": null,
+                "type": "fixed",
+                "mediatype": "tv",
+                "account_required": true
             },
             {
                 "label": "Search",
@@ -201,7 +244,8 @@
                 "submenu": "search",
                 "callurl": "search/tv",
                 "type": "search",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
             }
         ],
         "people": [
@@ -213,7 +257,8 @@
                 "submenu": "persongetlist",
                 "callurl": "person/popular",
                 "type": "tmdb_api_call",
-                "mediatype": "person"
+                "mediatype": "person",
+                "account_required": false
             },
             {
                 "label": "Search",
@@ -223,7 +268,8 @@
                 "submenu": "search",
                 "callurl": "search/person",
                 "type": "search",
-                "mediatype": "person"
+                "mediatype": "person",
+                "account_required": false
             }
         ],
         "usertmdb": [
@@ -232,70 +278,147 @@
                 "localstr": 32021,
                 "icon": "path/movie.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbmoviegetlist",
                 "callurl": "account/{}/favorite/movies",
-                "type": "tmdbmoviegetlist",
-                "mediatype": "movie"
+                "type": "usertmdb",
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Favorite TV",
                 "localstr": 32022,
                 "icon": "path/tvshow.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbtvgetlist",
                 "callurl": "account/{}/favorite/tv",
-                "type": "tmdbtvgetlist",
-                "mediatype": "tv"
+                "type": "usertmdb",
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "Lists",
                 "localstr": 32023,
                 "icon": "path/lists.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbgetlists",
                 "callurl": "account/{}/lists",
-                "type": "tmdbgetlists",
-                "mediatype": null
+                "type": "usertmdb",
+                "mediatype": null,
+                "account_required": false
             },
             {
                 "label": "Rated Movies",
                 "localstr": 32024,
                 "icon": "path/movie.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbmoviegetlist",
                 "callurl": "account/{}/rated/movies",
-                "type": "tmdbmoviegetlist",
-                "mediatype": "movie"
+                "type": "usertmdb",
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Rated TV",
                 "localstr": 32025,
                 "icon": "path/tvshow.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbtvgetlist",
                 "callurl": "account/{}/rated/tv",
-                "type": "tmdbtvgetlist",
-                "mediatype": "tv"
+                "type": "usertmdb",
+                "mediatype": "tv",
+                "account_required": false
             },
             {
                 "label": "Watchlist Movies",
                 "localstr": 32026,
                 "icon": "path/movie.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbmoviegetlist",
                 "callurl": "account/{}/watchlist/movies",
-                "type": "tmdbmoviegetlist",
-                "mediatype": "movie"
+                "type": "usertmdb",
+                "mediatype": "movie",
+                "account_required": false
             },
             {
                 "label": "Watchlist TV",
                 "localstr": 32027,
                 "icon": "path/tvshow.png",
                 "fanart": null,
-                "submenu": "usertmdb",
+                "submenu": "tmdbtvgetlist",
                 "callurl": "account/{}/watchlist/tv",
                 "type": "tmdbtvgetlist",
-                "mediatype": "tv"
+                "mediatype": "tv",
+                "account_required": false
+            }
+        ],
+        "movierecommened":[
+            {
+                "label": "recommened favorite",
+                "localstr": 32070,
+                "icon": "path/movie.png",
+                "fanart": null,
+                "submenu":"recommenedgetlist",
+                "callurl": "account/{}/favorite/movies",
+                "type": "movierecommened",
+                "mediatype": "movie",
+                "account_required": true
+            },
+            {
+                "label": "recommened rated",
+                "localstr": 32071,
+                "icon": "path/movie.png",
+                "fanart": null,
+                "submenu":"recommenedgetlist",
+                "callurl": "account/{}/rated/movies",
+                "type": "movierecommened",
+                "mediatype": "movie",
+                "account_required": true
+            },
+            {
+                "label": "recommened watchlist",
+                "localstr": 32072,
+                "icon": "path/movie.png",
+                "fanart": null,
+                "submenu":"recommenedgetlist",
+                "callurl": "account/{}/rated/movies",
+                "type": "movierecommened",
+                "mediatype": "movie",
+                "account_required": true
+            }
+        ],
+        "tvrecommened":[
+            {
+                "label": "recommened favorite",
+                "localstr": 32070,
+                "icon": "path/tvshow.png",
+                "fanart": null,
+                "submenu":"recommenedgetlist",
+                "callurl": "account/{}/favorite/tv",
+                "type": "tvrecommened",
+                "mediatype": "tv",
+                "account_required": true
+            },
+            {
+                "label": "recommened rated",
+                "localstr": 32071,
+                "icon": "path/tvshow.png",
+                "fanart": null,
+                "submenu":"recommenedgetlist",
+                "callurl": "account/{}/rated/tv",
+                "type": "tvrecommened",
+                "mediatype": "tv",
+                "account_required": true
+            },
+            {
+                "label": "recommened watchlist",
+                "localstr": 32072,
+                "icon": "path/tvshow.png",
+                "fanart": null,
+                "submenu":"recommenedgetlist",
+                "callurl": "account/{}/rated/tv",
+                "type": "tvrecommened",
+                "mediatype": "movie",
+                "account_required": true
             }
         ]
     },
@@ -329,12 +452,12 @@
             "ext": "json",
             "base_dict": {
                 "menus": {
-                    "genres":{
-                        "movie":[],
-                        "tv":[]
+                    "genres": {
+                        "movie": [],
+                        "tv": []
                     },
-                    "collections":[],
-                    "company":[]
+                    "collections": [],
+                    "company": []
                 }
             }
         },
