@@ -314,3 +314,7 @@ def _AddonSetSetting(addonID,setting_id,setting_value):
 	else:
 		Log(f'Setting {setting_id}\nnot updated or not set to {setting_value}\nfor addon:{addonID}')
 	return a
+
+def _AddonOpenSettings(addonID):
+	addon = _Addon(addonID)
+	addon.openSettings()

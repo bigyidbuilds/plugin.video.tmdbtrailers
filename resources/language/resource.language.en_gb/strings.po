@@ -272,6 +272,10 @@ msgctxt "#30063"
 msgid "Header close button no focus colour"
 msgstr ""
 
+msgctxt "#30064"
+msgid "It is possible to use your API key you used in youtube addon"
+msgstr ""
+
 ###---------- addon strings ----------###
 
 msgctxt "#32000"
@@ -585,4 +589,68 @@ msgstr ""
 ####--------Do not change {name} used for formatting--------#####
 msgctxt "#32076"
 msgid "Set rating for {name}"
+msgstr ""
+
+msgctxt "#32077"
+msgid "Rating"
+msgstr ""
+
+msgctxt "#32078"
+msgid "Release date"
+msgstr ""
+
+msgctxt "#32079"
+msgid "First air date"
+msgstr ""
+
+msgctxt "#32080"
+msgid "Last air date"
+msgstr ""
+
+msgctxt "#32081"
+msgid "No username or password stored in settings"
+msgstr ""
+
+msgctxt "#32082"
+msgid "Would you like to open settings and add?"
+msgstr ""
+
+msgctxt "#32083"
+msgid "Add/Remove from lists"
+msgstr ""
+
+msgctxt "#32084"
+msgid "Add to favourites"
+msgstr ""
+
+msgctxt "#32085"
+msgid "Remove from favourites"
+msgstr ""
+
+msgctxt "#32086"
+msgid "Add to watchlist"
+msgstr ""
+
+msgctxt "#32087"
+msgid "Remove from watchlist"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32089"
+msgid "{name} has successfully added to favourites"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32090"
+msgid "{name} has successfully removed from  favourites"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32091"
+msgid "{name} has successfully added to watchlist"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32090"
+msgid "{name} has successfully removed from watchlist"
 msgstr ""

@@ -22,6 +22,7 @@ from resources.lib._tmdb.tmdb_utils import TMDB_ArtWorkDownloader
 from resources.lib._tmdb.tmdb_token import TOKEN
 from resources.lib._tmdb import tmdb_registeration
 from resources.lib._youtube.youtube_api import YouTubeAPI 
+from resources.lib.modules.userfiles import RequiredDirs,RequiredFiles
 
 __addon__ = 'plugin.video.tmdbtrailers'
 
@@ -288,7 +289,7 @@ def ContextMenu(items,mediatype,list_id,tmdb_id):
 		'edit_list'
 		'delete_listitem'
 	'''
-	signin_status = True if addon_settings.getString('tmdb.user.sessionid') != None else False
+	signin_status = True if addon_settings.getString('tmdb.user.sessionid') else False
 	if list_id:
 		list_id = int(list_id)
 	if tmdb_id:
@@ -327,6 +328,9 @@ def ContextMenu(items,mediatype,list_id,tmdb_id):
 	if 'delete_listitem' in items and signin_status:
 		pluginpath = BuildPluginUrl({'mode':'account','action':'delete_listitem','media_type':mediatype,'tmdbid':tmdb_id,'list_id':list_id})
 		menu.append((_xbmc._AddonLocalStr(__addon__,32050),f'RunPlugin({pluginpath})',))
+	if 'videowindow' in items:
+		pluginpath = BuildPluginUrl({'mode':'video','mediatype':mediatype,'tmdbid':tmdb_id})
+		menu.append(('Video Window',f'RunPlugin({pluginpath})'))
 	return menu
 
 
@@ -404,7 +408,7 @@ def GetList(callurl,next_submenu,_type,path,page,prev_submenu,media_type):
 			tmdbid = r.get('id')
 			li = _xbmc.ListitemTMDBitem(r,True)
 			if media_type in ['movie','tv']:
-				contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists'],media_type,None,tmdbid)
+				contextitems = ContextMenu(['favorite','watchlist','rate','edit_lists','videowindow'],media_type,None,tmdbid)
 				li.addContextMenuItems(contextitems)
 			if path:
 				fullpath = path.format(tmdbID=tmdbid)
@@ -688,28 +692,6 @@ def RemoveGenres(mediatype):
 		xbmc.executebuiltin('Container.Refresh')
 
 
-
-def RequiredFiles():
-	data = ReadJsonFile(CONFIGPATH)
-	paths = data.get('paths')
-	files = data.get('files') 
-	for f in files:
-		filepath  = f.get('filepath')
-		filepath  = paths.get(filepath)
-		filepath  = _xbmc._joinPath(filepath.get('path_base'),folders=filepath.get('path_dirs'))
-		filename  = f.get('filename')
-		fileext   = f.get('ext')
-		base_dict = f.get('base_dict')
-		exists,created = _xbmc.CheckCreateFile(filepath,filename,fileext)
-		if exists and  created:
-			WriteJsonFile(_xbmc._joinPath(filepath,file_name=filename,file_ext=fileext),base_dict)
-
-		
-def RequiredDirs():
-	dirs = ReadJsonFile(CONFIGPATH,keys=['paths'])
-	for k,v in dirs.items():
-		_xbmc.CheckCreatePath(v.get('path_base'),folders=v.get('path_dirs'))
-
 def SearchQuery(mediatype):
 	if mediatype == 'movie':
 		key = 'movie_search'
@@ -769,11 +751,11 @@ def SetAccountDetails(addonID):
 		return False
 
 def StartUp():
-	RequiredDirs()
-	RequiredFiles()
+	RequiredDirs(CONFIGPATH)
+	RequiredFiles(CONFIGPATH)
 	if not addon_settings.getBool('tmdb.api.token.user') and addon_settings.getString('tmdb.api.token') != TOKEN:
 		_xbmc._AddonSetSetting(__addon__,'tmdb.api.token',TOKEN)
-	if addon_settings.getBool('tmdb.account.refresh') and addon_settings.getString('tmdb.user.sessionid') != None:
+	if addon_settings.getBool('tmdb.account.refresh') and addon_settings.getString('tmdb.user.sessionid'):
 		tmdbUserRefresh()
 
 
@@ -878,10 +860,10 @@ def tmdbMenu():
 	session_id = addon_settings.getString('tmdb.user.sessionid')
 	if not session_id:
 		li = _xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32019),icon=None,fanart=None,properties={'submenu':'signin','type':'usertmdb'})
-		items.append((BuildPluginUrl({'submenu':'usertmdb','type':'signin'}),li,False))
+		items.append((BuildPluginUrl({'type':'usertmdb','submenu':'signin'}),li,False))
 	else:
 		li = _xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32020),icon=None,fanart=None,properties={'submenu':'signout','type':'usertmdb'})
-		items.append((BuildPluginUrl({'submenu':'usertmdb','type':'signout'}),li,False))
+		items.append((BuildPluginUrl({'type':'usertmdb','submenu':'signout'}),li,False))
 		_items = GetMenuItems('usertmdb')
 		for i in _items:
 			icon_name = i.get('icon')
@@ -902,20 +884,25 @@ def tmdbMenu():
 
 
 
-
-
 def tmdbSignIn():
 	tmdbauth = Tmdb_Authentication(addon_settings.getString('tmdb.api.token'))
-	session_id = tmdbauth.SignIn(addon_settings.getString('tmdb.api.username'),addon_settings.getString('tmdb.api.password'))
-	updated = _xbmc._AddonSetSetting(__addon__,'tmdb.user.sessionid',session_id)
-	if updated:
-		_updated = SetAccountDetails(__addon__)
-		if _updated:
-			_xbmc.Log('Sign in complete and all settings set')
-			xbmc.executebuiltin('Container.Refresh')
+	data = tmdbauth.SignIn(addon_settings.getString('tmdb.api.username'),addon_settings.getString('tmdb.api.password'))
+	if data.get('success'):
+		_xbmc.Log('session id for sign in created')
+		updated = _xbmc._AddonSetSetting(__addon__,'tmdb.user.sessionid',data.get('session_id'))
+		if updated:
+			_xbmc.Log('session id setting updated')
+			_updated = SetAccountDetails(__addon__)
+			if _updated:
+				_xbmc.Log('Sign in complete and all settings set')
+				xbmc.executebuiltin('Container.Refresh')
+			else:
+				_xbmc.Log('Account settings not set')
 		else:
+			_xbmc.Log('session id setting not updated')
 			return
 	else:
+		_xbmc.Log('session id not created for sign in')
 		return
 	
 
@@ -1045,6 +1032,11 @@ elif mode == 'settings':
 	settings = Settings(sys.argv)
 	if settings:
 		settings.RunPluginMethod()
+elif mode == 'video':
+	from resources.lib.runpluginmethods.videowindow import VideoWindow
+	vw = VideoWindow(sys.argv)
+	if vw:
+		vw.RunPluginMethod()
 
 
 

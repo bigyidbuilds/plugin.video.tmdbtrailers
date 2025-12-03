@@ -9,6 +9,7 @@ from urllib.parse import parse_qs
 
 from resources.lib._tmdb.tmdb_account import TMDB_Account
 from resources.lib._tmdb.tmdb import TMDB_API
+from resources.lib._tmdb.tmdb_authentication import Tmdb_Authentication
 from resources.lib.modules import _xbmc
 from resources.lib.modules import userlists
 from resources.lib.modules._paths import File_Paths
@@ -44,8 +45,8 @@ class Account():
 			user_details: Pulls account details from TMDB and sets relative settings
 			sigin: sign in and create session id
 			signout: sign out and delete session id
-			favorite_add: required params media_type(movie or tv),tmdbid(id of tmdb media)
-			favorite_remove: required params media_type(movie or tv),tmdbid(id of tmdb media)
+			favorite_add: required params media_type(movie or tv),tmdbid(id of tmdb media) optional containerrefresh
+			favorite_remove: required params media_type(movie or tv),tmdbid(id of tmdb media) optional containerrefresh
 			watchlist_add: required params media_type(movie or tv),tmdbid(id of tmdb media)
 			watchlist_remove: required params media_type(movie or tv),tmdbid(id of tmdb media)
 			rate: required params media_type(movie or tv),tmdbid(id of tmdb media),rating(0-10 value as float 1 decimal place value must be dividable by 0.5 or '###' will call xbmc ui to enter a valve )
@@ -64,6 +65,8 @@ class Account():
 		self.req_keys = ['mode','action']
 		self.keys = list(self.keyvalues.keys())
 		self.tmdbacc = None
+		self.tmdbapi = None
+		self.tmdbauth = None
 		self.bearer = None
 		self.session_id = None
 		self.user_id = None
@@ -107,15 +110,11 @@ class Account():
 			self.addon = self.keyvalues.get('addon_id')[0]
 		except:
 			self.addon = __addon__
-		if self.addon == __addon__:
-			self.bearer = self.AddonSettings.getString('tmdb.api.token')
-			self.session_id = self.AddonSettings.getString('tmdb.user.sessionid')
-			self.user_id = self.AddonSettings.getInt('tmdb.user.id')
-		if self.bearer and self.session_id and self.user_id:
-			self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
-			self.tmdbapi = TMDB_API(self.bearer)
-		if not self.tmdbacc:
-			return
+		try:
+			self.refresh = False if self.keyvalues.get('refresh')[0].lower() == 'false' else True
+		except:
+			self.refresh = True
+		self.Credentials()
 		if action == 'user_details':
 			self.UserDetails()
 		elif action == 'signin':
@@ -187,123 +186,161 @@ class Account():
 
 
 	def DeleteListItem(self,list_id,tmdbid):
-		data = self.tmdbacc.RemoveListItem(list_id,tmdbid)
-		self.Notification(data)
-		xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = self.tmdbacc.RemoveListItem(list_id,tmdbid)
+			self.Notification(data)
+			if self.refresh:
+				xbmc.executebuiltin('Container.Refresh')
 
 
 	def EditLists(self,media_type,tmdbid):
-		selection = [_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32046),isfolder=False)]
-		account_lists = _jsonfiles.ReadJsonFile(self.FILEPATHS.account,keys=['account_lists'])
-		for k,v in account_lists.items():
-			results = v.get('results')
-			for r in results:
-				list_id = r.get('id')
-				name = r.get('name')
-				item_present = self.tmdbapi.CheckListSatus(list_id,tmdbid)
-				d={'list_id':list_id,'name':name,'item_present':item_present}
-				if item_present:
-					selection.append(_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32048).format(name=name),properties=d,isfolder=False))
+		if self.bearer and self.session_id and self.user_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			selection = [_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32046),isfolder=False)]
+			# account_lists = _jsonfiles.ReadJsonFile(self.FILEPATHS.account,keys=['account_lists'])
+			account_lists = self.tmdbacc.GetListsAllItems(f'account/{self.user_id}/lists')
+			for k,v in account_lists.items():
+				results = v.get('results')
+				for r in results:
+					list_id = r.get('id')
+					name = r.get('name')
+					item_present = self.tmdbapi.CheckListSatus(list_id,tmdbid)
+					d={'list_id':list_id,'name':name,'item_present':item_present}
+					if item_present:
+						selection.append(_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32048).format(name=name),properties=d,isfolder=False))
+					else:
+						selection.append(_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32049).format(name=name),properties=d,isfolder=False))
+			ret = self.dialog.select(_xbmc._AddonLocalStr(__addon__,32047),selection)
+			_xbmc.Log(ret)
+			if ret >= 0:
+				if ret == 0:
+					payload = {'name':None,'description':None,'language':self.Language}
+					ret1 = self.dialog.input(_xbmc._AddonLocalStr(__addon__,32029))
+					ret2 = self.dialog.input(_xbmc._AddonLocalStr(__addon__,32030))
+					payload.update({'name':ret1,'description':ret2})
+					data = self.tmdbacc.AddList(payload)
+					success = data.get('success')
+					list_id = data.get('list_id')
+					if success:
+						if self.addon == __addon__:
+							userlists.ListCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer)
+						data = self.tmdbacc.AddListItem(list_id,tmdbid)
+						self.Notification( data)
 				else:
-					selection.append(_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32049).format(name=name),properties=d,isfolder=False))
-		ret = self.dialog.select(_xbmc._AddonLocalStr(__addon__,32047),selection)
-		_xbmc.Log(ret)
-		if ret >= 0:
-			if ret == 0:
-				payload = {'name':None,'description':None,'language':self.Language}
-				ret1 = self.dialog.input(_xbmc._AddonLocalStr(__addon__,32029))
-				ret2 = self.dialog.input(_xbmc._AddonLocalStr(__addon__,32030))
-				payload.update({'name':ret1,'description':ret2})
-				data = self.tmdbacc.AddList(payload)
-				success = data.get('success')
-				list_id = data.get('list_id')
-				if success:
-					userlists.ListCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer)
-					data = self.tmdbacc.AddListItem(list_id,tmdbid)
-					self.Notification( data)
-			else:
-				sel = selection[ret]
-				properties = json.loads(sel.getProperty('Properties'))
-				item_present = properties.get('item_present')
-				list_id = properties.get('list_id')
-				if item_present:	
-					data = self.tmdbacc.RemoveListItem(list_id,tmdbid)
-					self.Notification( data)
-				else:
-					data = self.tmdbacc.AddListItem(list_id,tmdbid)
-					self.Notification( data)
+					sel = selection[ret]
+					properties = json.loads(sel.getProperty('Properties'))
+					item_present = properties.get('item_present')
+					list_id = properties.get('list_id')
+					if item_present:	
+						data = self.tmdbacc.RemoveListItem(list_id,tmdbid)
+						self.Notification( data)
+					else:
+						data = self.tmdbacc.AddListItem(list_id,tmdbid)
+						self.Notification( data)
 	
 				
 
 
 	def DeleteList(self,list_id):
-		data = self.tmdbacc.DeleteList(list_id)
-		self.Notification( data)
-		userlists.ListCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer)
-		xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = self.tmdbacc.DeleteList(list_id)
+			self.Notification( data)
+			if self.addon == __addon__:
+				userlists.ListCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer)
+			if self.refresh:
+				xbmc.executebuiltin('Container.Refresh')
 
 
 	def ClearList(self,list_id):
-		data = self.tmdbacc.ClearList(list_id)
-		self.Notification( data)
-		xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = self.tmdbacc.ClearList(list_id)
+			self.Notification( data)
+			if self.refresh:
+				xbmc.executebuiltin('Container.Refresh')
 
 
 	def Favorite(self,tmdbid,action,media_type):
-		data = self.tmdbacc.Favorites(self.user_id,tmdbid,action,media_type)
-		self.Notification( data)
-		userlists.FavoriteCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
-		xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id and self.user_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = self.tmdbacc.Favorites(self.user_id,tmdbid,action,media_type)
+			self.Notification( data)
+			if self.addon == __addon__:
+				userlists.FavoriteCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+			if self.refresh:
+				xbmc.executebuiltin('Container.Refresh')
 
 
 	def Watchlist(self,tmdbid,action,media_type):
-		data = self.tmdbacc.Watchlist(self.user_id,tmdbid,action,media_type)
-		self.Notification(data)
-		userlists.WatchlistCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
-		xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id and self.user_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = self.tmdbacc.Watchlist(self.user_id,tmdbid,action,media_type)
+			self.Notification(data)
+			if self.addon == __addon__:
+				userlists.WatchlistCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+			if self.refresh:
+				xbmc.executebuiltin('Container.Refresh')
 
 	
 	def Rate(self,media_type,tmdbid,rating):
-		data = None
-		media_title = None
-		if rating == '###':
-			if media_type == 'movie':
-				path = f'movie/{tmdbid}'
-				kw = 'title'
-				_data = self.tmdbapi.GetItem(path)
-				media_title = _data.get(kw)
-			elif media_type == 'tv':
-				path = f'tv/{tmdbid}'
-				kw = 'name'
-				_data = self.tmdbapi.GetItem(path)
-				media_title = _data.get(kw)
-			else:
-				rating = None
-			from resources.lib.windows.rate_slider import RateSlider
-			rating = RateSlider(media_title)
-		if rating:
-			rating = float(rating)
-			if media_type == 'movie':
-				data = self.tmdbacc.RateMovie(tmdbid,rating)
-				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
-			elif media_type == 'tv':
-				data = self.tmdbacc.RateTv(tmdbid,rating)
-				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
-			if data:
-				self.Notification(data)	
-			xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id and self.user_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = None
+			media_title = None
+			if rating == '###':
+				if media_type == 'movie':
+					path = f'movie/{tmdbid}'
+					kw = 'title'
+					_data = self.tmdbapi.GetItem(path)
+					media_title = _data.get(kw)
+				elif media_type == 'tv':
+					path = f'tv/{tmdbid}'
+					kw = 'name'
+					_data = self.tmdbapi.GetItem(path)
+					media_title = _data.get(kw)
+				else:
+					rating = None
+				from resources.lib.windows.rate_slider import RateSlider
+				rating = RateSlider(media_title)
+			if rating:
+				rating = float(rating)
+				if media_type == 'movie':
+					data = self.tmdbacc.RateMovie(tmdbid,rating)
+					if self.addon == __addon__:
+						userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+				elif media_type == 'tv':
+					data = self.tmdbacc.RateTv(tmdbid,rating)
+					if self.addon == __addon__:
+						userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+				if data:
+					self.Notification(data)
+				if self.refresh:	
+					xbmc.executebuiltin('Container.Refresh')
 
 	def unRate(self,media_type,tmdbid):
-		data = None
-		if media_type == 'movie':
-			data = self.tmdbacc.unRateMovie(tmdbid)
-			userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
-		elif media_type == 'tv':
-			data = self.tmdbacc.unRateTv(tmdbid)
-			userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
-		if data:
-			self.Notification( data)
-		xbmc.executebuiltin('Container.Refresh')
+		if self.bearer and self.session_id and self.user_id:
+			if not self.tmdbacc:
+				self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			data = None
+			if media_type == 'movie':
+				data = self.tmdbacc.unRateMovie(tmdbid)
+				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+			elif media_type == 'tv':
+				data = self.tmdbacc.unRateTv(tmdbid)
+				userlists.RatedCacheUpdate(self.FILEPATHS.account,self.session_id,self.user_id,self.bearer,media_type)
+			if data:
+				self.Notification( data)
+			if self.refresh:
+				xbmc.executebuiltin('Container.Refresh')
 
 	def Notification(self,data):
 		_xbmc.Log(data)
@@ -318,7 +355,29 @@ class Account():
 		self.AddonSettings.setString('tmdb.user.avatar',self.ImageUrl(ret.get('tmdb').get('avatar_path')))
 
 	def SignIn(self):
-		pass
+		if self.bearer:
+			if self.addon == __addon__:
+				if not self.AddonSettings.getString('tmdb.api.username') or self.AddonSettings.getString('tmdb.api.password'):
+					ret = self.dialog.yesno(_xbmc._AddonLocalStr(__addon__,32081),_xbmc._AddonLocalStr(__addon__,32082))
+					if not ret:
+						return
+					else:
+						_xbmc.AddonOpenSettings(__addon__)
+					self.AddonSettings = _xbmc._AddonSettings(__addon__) 
+				username = self.AddonSettings.getString('tmdb.api.username') 
+				password = self.AddonSettings.getString('tmdb.api.password')
+				if username and password:
+					self.tmdbacc = tmdb_authentication.Tmdb_Authentication(self.bearer)
+					res = self.tmdbacc.SignIn(username,password)
+					if res.get('success'):
+						session_id = res.get('session_id')
+						_xbmc._AddonSetSetting(__addon__,'tmdb.user.sessionid',session_id)
+						self.AddonSettings = _xbmc._AddonSettings(__addon__)
+						if self.AddonSettings.getString('tmdb.user.sessionid') == session_id:
+							self.SetAccountDetails(self.bearer,session_id)
+							self.AddonSettings = _xbmc._AddonSettings(__addon__) 
+							self.Notification({'status_message':'Sign in and account details updated'})
+
 
 	def SignOut(self):
 		pass
@@ -338,4 +397,46 @@ class Account():
 			return True,missing
 		else:
 			return False,missing
+
+	def Credentials(self):
+		if self.addon == __addon__:
+			# Try addon settings for TMDB API key
+			self.bearer = self.AddonSettings.getString('tmdb.api.token')
+			if not self.bearer:
+				#If no key takes key direct from file
+				from resources.lib._tmdb.tmdb_token import TOKEN
+				self.bearer = TOKEN
+			self.session_id = self.AddonSettings.getString('tmdb.user.sessionid')
+			self.user_id = self.AddonSettings.getInt('tmdb.user.id')
+			# if self.bearer and self.session_id and self.user_id:
+			# 	self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
+			# 	self.tmdbapi = TMDB_API(self.bearer)
+
+
+	def SetAccountDetails(self,token,session_id):
+		if not self.tmdbacc:
+			self.tmdbacc = TMDB_Account(token,session_id)
+		data = self.tmdbacc.AccountDetails()
+		a=b=c=d=e = False
+		if data:
+			try:
+				U_avatar = data.get('avatar').get('tmdb').get('avatar_path')
+			except:
+				U_avatar = ''
+			a = _xbmc._AddonSetSetting(__addon__,'tmdb.user.avatar',U_avatar)
+			u_id = data.get('id')
+			b = _xbmc._AddonSetSetting(__addon__,'tmdb.user.id',u_id)
+			u_lang = data.get('iso_639_1')
+			c = _xbmc._AddonSetSetting(__addon__,'tmdb.user.defaultlanguage',u_lang)
+			u_adult = data.get('include_adult')
+			d = _xbmc._AddonSetSetting(__addon__,'tmdb.user.adultsearch',u_adult)
+			u_name = data.get('name')
+			e = _xbmc._AddonSetSetting(__addon__,'tmdb.user.name',u_name)
+			if a==b==c==d==e==True:
+				return True
+			else:
+				return False
+		else:
+			return False
+
 		

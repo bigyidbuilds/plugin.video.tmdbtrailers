@@ -78,10 +78,11 @@ class Tmdb_Authentication():
 			'authentication/session/new',
 			_headers={"content-type": "application/json"},
 			_json={'request_token':token})
-		if ret.get('success') == True and "session_id" in keys:
-			return ret.get('session_id')
-		else:
-			return None
+		return ret
+		# if ret.get('success') == True and "session_id" in keys:
+		# 	return ret.get('session_id')
+		# else:
+		# 	return None
 
 	def DeleteSession(self,sessionID):
 		''' API reference https://developer.themoviedb.org/reference/authentication-delete-session'''

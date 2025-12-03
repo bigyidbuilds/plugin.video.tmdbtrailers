@@ -80,12 +80,12 @@
 				</setting>
 				<setting id="youtube.general.useapi" type="boolean" label="30050" help="30051">
 					<level>0</level>
-					<default>true</default>
+					<default>false</default>
 					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="2" label="30005">
-				<setting id="youtube.api.key"  type="string" label="30052" help="">
+				<setting id="youtube.api.key"  type="string" label="30052" help="30064">
 					<level>0</level>
 					<default/>
 					<constraints>

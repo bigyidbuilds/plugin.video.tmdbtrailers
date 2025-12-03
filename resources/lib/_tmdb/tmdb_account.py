@@ -294,6 +294,62 @@ class TMDB_Account():
 			return d 
 
 
+	def IsInFavourites(self,media_type,account_id,tmdb_id):
+		if media_type == 'movie':
+			path = f'account/{account_id}/favorite/movies'
+		elif media_type == 'tv':	
+			path = f'account/{account_id}/favorite/tv'
+		else:
+			return False
+		total_pages = 1
+		page = 1
+		try:
+			while page <= total_pages:
+				data,keys = self._Session('GET',path,_params={'page':page,'session_id':self.session_id})
+				if not any(k in ['results','items']for k in keys):
+					raise exceptions.TMDBAPI_KeyError_Exception('Key Error','results/items',','.join(keys))
+				results = data.get('results')
+				total_pages = data.get('total_pages')
+				for r in results:
+					if r.get('id') == int(tmdb_id):
+						return True
+				page +=1
+			return False
+		except exceptions.TMDBAPI_KeyError_Exception as e:
+			Log(e.logmessage)
+			return False
+		except Exception as e:
+			Log(e)
+			return False
+
+	def IsInWatchlist(self,media_type,account_id,tmdb_id):
+		if media_type == 'movie':
+			path = f'account/{account_id}/watchlist/movies'
+		elif media_type == 'tv':	
+			path = f'account/{account_id}/watchlist/tv'
+		else:
+			return False
+		total_pages = 1
+		page = 1
+		try:
+			while page <= total_pages:
+				data,keys = self._Session('GET',path,_params={'page':page,'session_id':self.session_id})
+				if not any(k in ['results','items']for k in keys):
+					raise exceptions.TMDBAPI_KeyError_Exception('Key Error','results/items',','.join(keys))
+				results = data.get('results')
+				total_pages = data.get('total_pages')
+				for r in results:
+					if r.get('id') == int(tmdb_id):
+						return True
+				page += 1
+			return False
+		except exceptions.TMDBAPI_KeyError_Exception as e:
+			Log(e.logmessage)
+			return False
+		except Exception as e:
+			Log(e)
+			return False
+
 
 
 	def GetLists(self,path,page,listitems=True):

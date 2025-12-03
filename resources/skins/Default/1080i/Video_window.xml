@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window>
+	<defaultcontrol always="false">1000</defaultcontrol>
+	<menucontrol>0</menucontrol>
+	<backgroundcolor>0</backgroundcolor>
+	<animation effect="fade" time="200">WindowOpen</animation>
+	<animation effect="fade" time="200">WindowClose</animation>
+	<coordinates>
+		<left>0</left>
+		<top>0</top>
+	</coordinates>
+	<controls>
+		<control type="group" id="1000">
+			<width>100%</width>
+			<height>100%</height>
+			<control type="image">
+				<visible>true</visible>
+				<texture>black_background.png</texture>
+			</control>
+			<control type="image" id="1001">
+				<description>BACKDROP</description>
+				<visible>true</visible>
+				<texture></texture>
+			</control>
+			<control type="image" id="1002">
+				<description>POSTER</description>
+				<left>100</left>
+				<top>150</top>
+				<width>300</width>
+				<height>450</height>
+				<visible>true</visible>
+				<aspectratio>scale</aspectratio>
+				<texture></texture>
+			</control>
+			<control type="image">
+				<width>100%</width>
+				<height>90</height>
+				<texture>white_background.png</texture>
+				<colordiffuse>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.header.color)]</colordiffuse>
+			</control>
+			<control type="label" id="1003">
+				<description>LABEL</description>
+				<left>5</left>
+				<top>5</top>
+				<width>1800</width>
+				<height>80</height>
+				<font>font13</font>
+				<align>left</align>
+				<aligny>center</aligny>
+				<label>[B]$INFO[Window().Property(label)][/B]</label>
+			</control>
+			<control type="button" id="1004">
+				<animation effect="zoom" end="110,110" center="auto" time="100">Focus</animation>
+				<width>100</width>
+				<height>100</height>
+				<left>90r</left>
+				<top>-5</top>
+				<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.close.focus.color)">close.png</texturefocus>
+				<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.close.nofocus.color)">close.png</texturenofocus>
+				<ondown>2000</ondown>
+			</control>
+			<control type="group">
+				<left>0</left>
+				<top>650</top>
+				<control type="image" id="1005">
+					<description>DESCRIPTION_BACKGROUND</description>
+					<width>500</width>
+					<height>360</height>
+					<texture>black_background.png</texture>
+				</control>
+				<control type="textbox" id="1006">
+					<description>DESCRIPTION</description>
+					<left>10</left>
+					<width>480</width>
+					<height>350</height>
+					<font>font13</font>
+					<textcolor>white</textcolor>
+					<label>$INFO[Window().Property(overview)]</label>
+					<autoscroll delay="3000" time="1000" repeat="10000">true</autoscroll>
+				</control>
+			</control>
+		</control>
+		<control type="fixedlist" id="2000">
+			<left></left>
+			<top></top>
+			<width>600</width>
+			<height></height>
+			<focusposition>0</focusposition>
+			<movement>17</movement>
+			<onup>1004</onup>
+			<ondown>3000</ondown>
+			<onright>2001</onright>
+			<orientation>vertical</orientation>
+			<pagecontrol>2001</pagecontrol>
+			<visible>!Control.IsVisible(4000)</visible>
+			<itemlayout width="600" height="50">
+				<control type="image">
+					<left>0</left>
+					<top>5</top>
+					<width>600</width>
+					<height>45</height>
+					<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texture>
+				</control>
+				<control type="label">
+					<left>5</left>
+					<top>5</top>
+					<width>590</width>
+					<height>40</height>
+					<font>font13</font>
+					<aligny>center</aligny>
+					<align>left</align>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</itemlayout>
+			<focusedlayout width="600" height="50">
+				<control type="image">
+					<animation type="Focus">
+						<effect type="zoom" end="110,100" center="auto" time="200"/>
+						<effect type="slide" end="-30,0" time="200"/>
+					</animation>
+					<left>0</left>
+					<top>5</top>
+					<width>600</width>
+					<height>45</height>
+					<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texture>
+					<visible>Control.HasFocus(2000)</visible>
+				</control>
+				<control type="image">
+					<left>0</left>
+					<top>5</top>
+					<width>600</width>
+					<height>45</height>
+					<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texture>
+					<visible>!Control.HasFocus(2000)</visible>
+				</control>
+				<control type="label">
+					<animation type="Focus">
+						<effect type="zoom" end="110,100" center="auto" time="200"/>
+						<effect type="slide" end="-30,0" time="200"/>
+					</animation>
+					<left>0</left>
+					<top>5</top>
+					<width>590</width>
+					<height>40</height>
+					<font>font13</font>
+					<aligny>center</aligny>
+					<align>left</align>
+					<label>$INFO[ListItem.Label]</label>
+					<scroll>true</scroll>
+				</control>
+			</focusedlayout>
+		</control>
+		<control type="scrollbar" id="2001">
+			<description>slider control</description>
+			<left>20r</left>
+			<top>100</top>
+			<width>10</width>
+			<height>900</height>
+			<visible>Integer.IsGreater(Container(2000).NumItems,18)</visible>
+			<texturesliderbackground colordiffuse="black">button.png</texturesliderbackground>
+			<texturesliderbar colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturesliderbar>
+			<texturesliderbarfocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturesliderbarfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<orientation>vertical</orientation>
+			<onup>1004</onup>
+			<ondown>3000</ondown>
+			<onleft>2000</onleft>
+			<onright></onright>
+		</control>
+		<control type="group" id="2003">
+			<left></left>
+			<top></top>
+			<visible>Control.HasFocus(2000)+Addon.SettingBool(plugin.video.tmdbtrailers,youtube.general.useapi)+!String.IsEmpty(Addon.SettingStr(plugin.video.tmdbtrailers,youtube.api.key))+!String.IsEmpty(Container(2000).ListItem().Plot))</visible>
+			<animation effect="slide" end="-30,0" time="200" condition="Control.HasFocus(2000)">Conditional</animation>
+			<control type="image" id="2002">
+				<description>DESCRIPTION_BACKGROUND</description>
+				<width>500</width>
+				<height>430</height>
+				<texture>black_background.png</texture>
+			</control>
+			<control type="textbox" id="2004">
+				<description>DESCRIPTION</description>
+				<left>10</left>
+				<width>480</width>
+				<height>420</height>
+				<font>font13</font>
+				<textcolor>white</textcolor>
+				<label>$INFO[Container(2000).ListItem().Plot]</label>
+				<autoscroll delay="3000" time="1000" repeat="10000">true</autoscroll>
+			</control>
+			<control type="image">
+				<description>DESCRIPTION_ICON</description>
+				<left>505</left>
+				<width>180</width>
+				<height>120</height>
+				<aspectratio>scale</aspectratio>
+				<texture>$INFO[Container(2000).ListItem().Thumb]</texture>
+			</control>
+		</control>
+		<control type="grouplist" id="3000">
+			<animation effect="slide" start="2000,0" time="2000">WindowOpen</animation>
+			<left>10</left>
+			<top>1020</top>
+			<width>1900</width>
+			<height>60</height>
+			<defaultcontrol></defaultcontrol>
+			<itemgap>15</itemgap>
+			<scrolltime tween="sine" easing="out">200</scrolltime>
+			<orientation>horizontal</orientation>
+			<align>right</align>
+			<onup>2000</onup>
+			<control type="group">
+				<height>50</height>
+				<width>200</width>
+				<control type="image">
+					<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texture>
+				</control>
+				<control type="label">
+					<align>center</align>
+        			<aligny>center</aligny>
+        			<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</textcolor>
+        			<label>$ADDON[plugin.video.tmdbtrailers 32018]</label>
+        		</control>
+        	</control>
+			<control type="button" id="3001">
+				<description>SIGN_IN</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>200</width>
+				<height>50</height>
+				<texturefocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32019]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+			<control type="button" id="3002">
+				<description>SIGN_OUT</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>200</width>
+				<height>50</height>
+				<texturefocus border="5"  colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32020]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+			<control type="button" id="3003">
+				<description>LISTS</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>350</width>
+				<height>50</height>
+				<texturefocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32083]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+			<control type="button" id="3004">
+				<description>ADD_FAV</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>275</width>
+				<height>50</height>
+				<texturefocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32084]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+			<control type="button" id="3005">
+				<description>REM_FAV</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>375</width>
+				<height>50</height>
+				<texturefocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32085]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+			<control type="button" id="3006">
+				<description>ADD_WATCH</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>275</width>
+				<height>50</height>
+				<texturefocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32086]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+			<control type="button" id="3007">
+				<description>REM_WATCH</description>
+				<animation effect="zoom" end="102,110" center="auto" time="100">Focus</animation>
+				<width>350</width>
+				<height>50</height>
+				<texturefocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturefocus>
+				<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
+				<label>$ADDON[plugin.video.tmdbtrailers 32087]</label>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+				<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+				<align>center</align>
+				<aligny>center</aligny>
+				<visible>true</visible>
+			</control>
+		</control>
+		<control type="group" id="4000">
+			<description>notification dialog</description>
+			<left>650</left>
+			<top>505</top>
+			<width>620</width>
+			<height>70</height>
+			<control type="image">
+				<texture colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.color)">black_background.png</texture>
+				<bordertexture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.border.color)">white_background.png</bordertexture>
+				<bordersize>5</bordersize>
+			</control>
+			<control type="label" id="4001">
+				<left>10</left>
+				<top>10</top>
+				<width>600</width>
+				<height>50</height>
+				<align>center</align>
+				<aligny>center</aligny>
+				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.header.text.color)]</textcolor>
+				<font>font13</font>
+			</control>
+		</control>
+	</controls>
+</window>

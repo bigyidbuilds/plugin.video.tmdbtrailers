@@ -155,7 +155,15 @@ class TMDB_API():
 		else:
 			return None
 
-
+	def GetDetailsandVidoes(self,tmdb_id,media_type):
+		"""Required params: language,append_to_response"""
+		if media_type == 'movie':
+			path = f'movie/{tmdb_id}'
+		elif media_type == 'tv':
+			path = f'tv/{tmdb_id}'
+		else:
+			return None
+		return self._Session(self._BuildUrl(path),params={'language':tmdb_var.LANGUAGE,'append_to_response':'videos'})
 
 	def GetItem(self,path):
 		"""Required params: language"""

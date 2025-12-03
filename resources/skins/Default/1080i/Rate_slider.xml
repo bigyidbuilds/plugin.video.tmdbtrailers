@@ -108,7 +108,7 @@
 					<texturenofocus border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturenofocus>
 					<label>$ADDON[plugin.video.tmdbtrailers 32074]</label>
 					<wrapmultiline>true</wrapmultiline>
-					<font>font12</font>
+					<font>font13</font>
 					<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
 					<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
 					<disabledcolor></disabledcolor>
