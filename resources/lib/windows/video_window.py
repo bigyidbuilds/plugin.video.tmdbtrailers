@@ -1,16 +1,22 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+import json
+import time
+
 import xbmc
 import xbmcgui
 
 from resources.lib._tmdb.tmdb import TMDB_API
 from resources.lib._tmdb.tmdb_account import TMDB_Account
+from resources.lib._tmdb.tmdb_authentication import Tmdb_Authentication
 from resources.lib._tmdb.tmdb_token import TOKEN
 from resources.lib._tmdb.tmdb_utils import TMDB_ImageUrl
 from resources.lib._youtube.youtube_api import YouTubeAPI
+from resources.lib.modules._paths import File_Paths
 from resources.lib.modules import _xbmc
 from resources.lib.modules import userfiles
+from resources.lib.modules import userlists
 
 __addon__ = 'plugin.video.tmdbtrailers'
 
@@ -21,6 +27,9 @@ class VideoWindow(xbmcgui.WindowXML):
 	ACTION_PREVIOUS_MENU = 10
 	ACTION_NAV_BACK = 92
 
+	CONTEXT_GROUP_ANIMATION_CONTROL = 1
+	NOTIFIY_GROUP_ANIMATION_CONTROL = 2
+	LISTS_LIST_ANIMATION_CONTROL = 3
 	BACKDROP = 1001
 	POSTER = 1002
 	LABEL = 1003
@@ -37,6 +46,10 @@ class VideoWindow(xbmcgui.WindowXML):
 	REM_FAV = 3005
 	ADD_WATCH = 3006
 	REM_WATCH = 3007
+	NOTIFIY_GROUP = 4000
+	NOTIFIY_LABEL = 4001
+	LISTS_LIST = 5000
+
 
 	def __new__(cls,tmdbid,mediatype):
 		return super(VideoWindow, cls).__new__(cls,'video_window.xml',_xbmc._AddonInfo(__addon__,'path'),'Default', '1080i')
@@ -51,6 +64,8 @@ class VideoWindow(xbmcgui.WindowXML):
 		self.mediatype = mediatype
 		self.TMDB_API = TMDB_API(TOKEN)
 		self.TMDB_ACC = None
+		self.TMDB_AUTH = Tmdb_Authentication(TOKEN)
+		self.FILEPATHS = File_Paths(self.configpath)
 		if self.use_yt_api:
 			self.YT_API = YouTubeAPI(self.yt_api)
 		else:
@@ -79,7 +94,6 @@ class VideoWindow(xbmcgui.WindowXML):
 		if self.trailers:
 			self.videolistitems = self.VideoListItems()
 			self.videolistitems_count = len(self.videolistitems)
-			_xbmc.Log(self.videolistitems_count)
 		else:
 			self.videolistitems = None
 			self.videolistitems_count = 0
@@ -91,6 +105,8 @@ class VideoWindow(xbmcgui.WindowXML):
 
 
 	def onInit(self):
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+		self.setVisible(self.LISTS_LIST_ANIMATION_CONTROL,False)
 		self.setProperty('label',self.label)
 		self.setProperty('overview',self.overview)
 		self.setImage(self.BACKDROP,self.backdrop)
@@ -130,6 +146,9 @@ class VideoWindow(xbmcgui.WindowXML):
 				item = self.getSelectedItem(self.VIDEO_LIST)
 				path = item.getPath()
 				xbmc.Player().play(path)
+			elif focusid == self.LISTS_LIST:
+				item = self.getSelectedItem(self.LISTS_LIST)
+				self.ListEdit(item)
 
 	def onClick(self,controlID):
 		_xbmc.Log(f'onClick{controlID}')
@@ -142,11 +161,13 @@ class VideoWindow(xbmcgui.WindowXML):
 		elif controlID == self.ADD_FAV:
 			self.Fav(True)
 		elif controlID == self.ADD_WATCH:
-			self.Watch(True):
+			self.Watch(True)
 		elif controlID == self.REM_FAV:
 			self.Fav(False)
 		elif controlID == self.REM_WATCH:
 			self.Watch(False)
+		elif controlID == self.LISTS:
+			self.Lists()
 
 
 	def Close(self):
@@ -154,12 +175,14 @@ class VideoWindow(xbmcgui.WindowXML):
 
 
 	def UserMenu(self):
+		self.setVisible(self.CONTEXT_GROUP_ANIMATION_CONTROL,False)
 		for i in [self.SIGN_IN,self.SIGN_OUT,self.LISTS,self.REM_FAV,self.REM_WATCH,self.ADD_FAV,self.ADD_WATCH]:
 			self.setVisible(i,False)
 		sessionid = self.SessionId()
 		if sessionid:
 			self.setVisible(self.SIGN_OUT,True)
-			self.setVisible(self.LISTS,True)
+			if self.mediatype == 'movie':
+				self.setVisible(self.LISTS,True)
 			self.TMDB_ACC = TMDB_Account(TOKEN,sessionid)
 			if self.TMDB_ACC.IsInFavourites(self.mediatype,self.UserId(),self.tmdbid):
 				self.setVisible(self.REM_FAV,True)
@@ -171,25 +194,170 @@ class VideoWindow(xbmcgui.WindowXML):
 				self.setVisible(self.ADD_WATCH,True)
 		else:
 			self.setVisible(self.SIGN_IN,True)
+		self.setVisible(self.CONTEXT_GROUP_ANIMATION_CONTROL,True)
 
 
 
 	def SignIn(self):
-		pass
+		uname,pword = self.UsernamePassword()
+		if uname and  pword:
+			self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+			ret = self.TMDB_AUTH.SignIn(uname,pword)
+			success = ret.get('success')
+			if success:
+				session_id = ret.get('session_id')
+				_xbmc._AddonSetSetting(__addon__,'tmdb.user.sessionid',session_id)
+				self.AddonSettings = _xbmc._AddonSettings(__addon__)
+				if self.AddonSettings.getString('tmdb.user.sessionid') == session_id:
+					# self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(32096))
+					ret = self.SetAccountDetails()
+					if ret:
+						self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32100))
+				else:
+					self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32098))
+			else:
+					self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32098))
+			time.sleep(3)
+			self.UserMenu()
+			self.setLabel(self.NOTIFIY_LABEL,'')
+			self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+
+		else:
+			self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+			self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32099))
+			time.sleep(3)
+			self.setLabel(self.NOTIFIY_LABEL,'')
+			self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+
+
 		
 	def SignOut(self):
-		pass
+		ret,keys = self.TMDB_AUTH.SignOut(self.SessionId())
+		success = ret.get('success',False)
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+		if success:
+			self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32095))
+			_xbmc._AddonSetSetting(__addon__,'tmdb.user.sessionid','')
+		else:
+			self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32097))
+		time.sleep(3)
+		self.setLabel(self.NOTIFIY_LABEL,'')
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+		self.UserMenu()
+
+
 
 	def Fav(self,add):
 		sessionid = self.SessionId()
 		account_id = self.UserId()
 		if not self.TMDB_ACC:
 			self.TMDB_ACC = TMDB_Account(TOKEN,sessionid)
-		ret = self.TMDB_ACC.Favorites(account_id,self.tmdbid,add,self.media_type)
+		ret = self.TMDB_ACC.Favorites(account_id,self.tmdbid,add,self.mediatype)
 		success = ret.get('status_message')
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+		if success:
+			if add:
+				self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32089).format(name=self.label))
+			elif not add:
+				self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32090).format(name=self.label))
+			userlists.FavoriteCacheUpdate(self.FILEPATHS.account,sessionid,account_id,TOKEN,self.mediatype)
+		else:
+			self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32093))
+		time.sleep(3)
+		self.setLabel(self.NOTIFIY_LABEL,'')
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+		self.UserMenu()
 
 	def Watch(self,add):
-		pass
+		sessionid = self.SessionId()
+		account_id = self.UserId()
+		if not self.TMDB_ACC:
+			self.TMDB_ACC = TMDB_Account(TOKEN,sessionid)
+		ret = self.TMDB_ACC.Watchlist(account_id,self.tmdbid,add,self.mediatype)
+		success = ret.get('status_message')
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+		if success:
+			if add:
+				self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32091).format(name=self.label))
+			elif not add:
+				self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32092).format(name=self.label))
+			userlists.WatchlistCacheUpdate(self.FILEPATHS.account,sessionid,account_id,TOKEN,self.mediatype)
+		else:
+			self.setLabel(self.NOTIFIY_LABEL,_xbmc._AddonLocalStr(__addon__,32093))
+		time.sleep(3)
+		self.setLabel(self.NOTIFIY_LABEL,'')
+		self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+		self.UserMenu()
+
+	def Lists(self):
+		if not self.isVisible(self.LISTS_LIST_ANIMATION_CONTROL):
+			self.setVisible(self.LISTS_LIST_ANIMATION_CONTROL,True)
+		selection = [_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32094),properties={'function':'cancel'},isfolder=False),_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32046),properties={'function':'new'},isfolder=False)]
+		sessionid = self.SessionId()
+		account_id = self.UserId()
+		if not self.TMDB_ACC:
+			self.TMDB_ACC = TMDB_Account(TOKEN,sessionid)
+		ret = self.TMDB_ACC.GetAllLists(account_id)
+		results = ret.get('results')
+		for r in results:
+			list_id = r.get('id')
+			name = r.get('name')
+			item_present = self.TMDB_API.CheckListSatus(list_id,self.tmdbid)
+			d={'list_id':list_id,'name':name,'item_present':item_present,'function':'edit'}
+			if item_present:
+				selection.append(_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32048).format(name=name),properties=d,isfolder=False))
+			else:
+				selection.append(_xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32049).format(name=name),properties=d,isfolder=False))
+		listcontrol = self.getControl(self.LISTS_LIST)
+		listcontrol.reset()
+		listcontrol.addItems(selection)
+		self.setFocusId(self.LISTS_LIST)
+
+
+	def ListEdit(self,item):
+		properties = json.loads(item.getProperty('Properties'))
+		func = properties.get('function')
+		list_id = properties.get('list_id',0)
+		name = properties.get('name')
+		item_present = properties.get('item_present')
+		if func == 'cancel':
+			self.setVisible(self.LISTS_LIST_ANIMATION_CONTROL,False)
+			self.setVisible(self.VIDEO_LIST,True)
+		elif func == 'new':
+			language = self.Language()
+			dialog = xbmcgui.Dialog()
+			ret1 = dialog.input(_xbmc._AddonLocalStr(__addon__,32029))
+			ret2 = dialog.input(_xbmc._AddonLocalStr(__addon__,32030))
+			payload = {'name':ret1,'description':ret2,'language':language}
+			data = self.TMDB_ACC.AddList(payload)
+			success = data.get('success')
+			list_id = data.get('list_id')
+			if success:
+				userlists.ListCacheUpdate(self.FILEPATHS.account,self.SessionId(),self.UserId(),TOKEN)
+				data = self.TMDB_ACC.AddListItem(list_id,self.tmdbid)
+				status_message = data.get('status_message')
+				self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+				self.setLabel(self.NOTIFIY_LABEL,status_message)
+				time.sleep(3)
+				self.setLabel(self.NOTIFIY_LABEL,'')
+				self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+				self.Lists()
+		elif func == 'edit':
+			if item_present:	
+				data = self.TMDB_ACC.RemoveListItem(list_id,self.tmdbid)
+			else:
+				data = self.TMDB_ACC.AddListItem(list_id,self.tmdbid)
+			status_message = data.get('status_message')
+			self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,True)
+			self.setLabel(self.NOTIFIY_LABEL,status_message)
+			time.sleep(3)
+			self.setLabel(self.NOTIFIY_LABEL,'')
+			self.setVisible(self.NOTIFIY_GROUP_ANIMATION_CONTROL,False)
+			self.Lists()
+		else:
+			self.setVisible(self.LISTS_LIST_ANIMATION_CONTROL,False)
+			self.setVisible(self.VIDEO_LIST,True)
+
 
 
 	def VideoListItems(self):
@@ -241,6 +409,52 @@ class VideoWindow(xbmcgui.WindowXML):
 		else:
 			return
 
+	def SetAccountDetails(self):
+		if not self.TMDB_ACC:
+			self.TMDB_ACC = TMDB_Account(TOKEN,self.SessionId())
+		data = self.TMDB_ACC.AccountDetails()
+		a=b=c=d=e = False
+		if data:
+			try:
+				U_avatar = data.get('avatar').get('tmdb').get('avatar_path')
+			except:
+				U_avatar = ''
+			a = _xbmc._AddonSetSetting(__addon__,'tmdb.user.avatar',U_avatar)
+			u_id = data.get('id')
+			b = _xbmc._AddonSetSetting(__addon__,'tmdb.user.id',u_id)
+			u_lang = data.get('iso_639_1')
+			c = _xbmc._AddonSetSetting(__addon__,'tmdb.user.defaultlanguage',u_lang)
+			u_adult = data.get('include_adult')
+			d = _xbmc._AddonSetSetting(__addon__,'tmdb.user.adultsearch',u_adult)
+			u_name = data.get('name')
+			e = _xbmc._AddonSetSetting(__addon__,'tmdb.user.name',u_name)
+			if a==b==c==d==e==True:
+				return True
+			else:
+				return False
+		else:
+			return False
+
+	def Language(self):
+		self.addon_settings = _xbmc._AddonSettings(__addon__)
+		lang = self.addon_settings.getString('tmdb.language')
+		if lang == 'xbmc':
+			return xbmc.getInfoLabel('System.Language')
+		elif lang == 'tmdb':
+			l = self.addon_settings.getString('tmdb.user.defaultlanguage')
+			if l != '':
+				return l
+			else:
+				return 'en-US'
+		else:
+			return 'en-US'
+
+	def UsernamePassword(self):
+		self.addon_settings = _xbmc._AddonSettings(__addon__)
+		uname = self.addon_settings.getString('tmdb.api.username')
+		pword = self.addon_settings.getString('tmdb.api.password')
+		return uname,pword
+
 	def SessionId(self):
 		self.addon_settings = _xbmc._AddonSettings(__addon__)
 		return self.addon_settings.getString('tmdb.user.sessionid')
@@ -248,6 +462,10 @@ class VideoWindow(xbmcgui.WindowXML):
 	def UserId(self):
 		self.addon_settings = _xbmc._AddonSettings(__addon__)
 		return self.addon_settings.getInt('tmdb.user.id')
+
+	def isVisible(self,controlid):
+		control = self.getControl(controlid)
+		return control.isVisible()
 
 	def setImage(self,controlid,path):
 		control = self.getControl(controlid)

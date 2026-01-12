@@ -291,7 +291,33 @@ class TMDB_Account():
 				Log(exc)
 				return d 
 		else:
-			return d 
+			return d
+
+
+	def GetAllLists(self,account_id):
+		'''Returns all items from all pages in results'''
+		total_pages = 1
+		page = 1
+		total_results = 0
+		_results = []
+		try:
+			while page <= total_pages:
+				data,keys = self._Session('GET',f'account/{account_id}/lists',_params={'page':page,'session_id':self.session_id})
+				if not any(k in ['results','items']for k in keys):
+					raise exceptions.TMDBAPI_KeyError_Exception('Key Error','results/items',','.join(keys))
+				results = data.get('results')
+				total_pages = data.get('total_pages')
+				total_results = data.get('total_results')
+				_results.extend(results)
+				page +=1
+			return {'page':page,'results':_results,'total_pages':total_pages,'total_results':total_results}
+		except exceptions.TMDBAPI_KeyError_Exception as e:
+			Log(e.logmessage)
+			return {'page':page,'results':_results,'total_pages':total_pages,'total_results':total_results}
+		except Exception as e:
+			Log(e)
+			return {'page':page,'results':_results,'total_pages':total_pages,'total_results':total_results}
+
 
 
 	def IsInFavourites(self,media_type,account_id,tmdb_id):

@@ -91,11 +91,7 @@ class Tmdb_Authentication():
 			'authentication/session',
 			_headers={"content-type": "application/json"},
 			_json={"session_id":sessionID})
-		if ret:
-			if ret.get('success') == True:
-				return ret,keys
-		else:
-			return None,None
+		return ret,keys
 
 
 	def SignIn(self,username,password):
@@ -110,14 +106,7 @@ class Tmdb_Authentication():
 
 	def SignOut(self,session_id):
 		ret,key = self.DeleteSession(session_id)
-		if ret:
-			if ret.get('success') == True:
-				return True
-			else:
-				return False
-		else:
-			return False
-
+		return ret,key
 
 		
 	def ValidateKey(self):

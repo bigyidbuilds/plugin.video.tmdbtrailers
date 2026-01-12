@@ -376,7 +376,7 @@
                 "fanart": null,
                 "submenu": "tmdbtvgetlist",
                 "callurl": "account/{}/watchlist/tv",
-                "type": "tmdbtvgetlist",
+                "type": "usertmdb",
                 "mediatype": "tv",
                 "account_required": false,
                 "mode": "addon"

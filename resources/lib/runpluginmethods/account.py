@@ -369,14 +369,15 @@ class Account():
 				if username and password:
 					self.tmdbacc = tmdb_authentication.Tmdb_Authentication(self.bearer)
 					res = self.tmdbacc.SignIn(username,password)
-					if res.get('success'):
+					success = res.get('success',False)
+					if success:
 						session_id = res.get('session_id')
 						_xbmc._AddonSetSetting(__addon__,'tmdb.user.sessionid',session_id)
 						self.AddonSettings = _xbmc._AddonSettings(__addon__)
 						if self.AddonSettings.getString('tmdb.user.sessionid') == session_id:
 							self.SetAccountDetails(self.bearer,session_id)
 							self.AddonSettings = _xbmc._AddonSettings(__addon__) 
-							self.Notification({'status_message':'Sign in and account details updated'})
+							self.Notification({'status_message':_xbmc._AddonLocalStr(__addon__,32100)})
 
 
 	def SignOut(self):
@@ -410,7 +411,7 @@ class Account():
 			self.user_id = self.AddonSettings.getInt('tmdb.user.id')
 			# if self.bearer and self.session_id and self.user_id:
 			# 	self.tmdbacc = TMDB_Account(self.bearer,self.session_id)
-			# 	self.tmdbapi = TMDB_API(self.bearer)
+			self.tmdbapi = TMDB_API(self.bearer)		
 
 
 	def SetAccountDetails(self,token,session_id):

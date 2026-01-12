@@ -99,7 +99,7 @@ msgid "Refresh tmdb details and lists at startup"
 msgstr ""
 
 msgctxt "#30021"
-msgid "Account details from TMDB to modifiy these go to\nhttps://www.themoviedb.org/settings/account"
+msgid "Account details from TMDB to modify these go to\nhttps://www.themoviedb.org/settings/account"
 msgstr ""
 
 msgctxt "#30022"
@@ -651,6 +651,39 @@ msgid "{name} has successfully added to watchlist"
 msgstr ""
 
 ####--------Do not change {name} used for formatting--------#####
-msgctxt "#32090"
+msgctxt "#32092"
 msgid "{name} has successfully removed from watchlist"
+msgstr ""
+
+####--------Do not change {name} used for formatting--------#####
+msgctxt "#32093"
+msgid "Error while trying to add/remove {name}"
+msgstr ""
+
+msgctxt "#32094"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "#32095"
+msgid "Sign out successful"
+msgstr ""
+
+msgctxt "#32096"
+msgid "Sign in successful"
+msgstr ""
+
+msgctxt "#32097"
+msgid "Sign out unsuccessful"
+msgstr ""
+
+msgctxt "#32098"
+msgid "Sign in unsuccessful"
+msgstr ""
+
+msgctxt "#32099"
+msgid "No Username or password stored please add to settings to allow sign in"
+msgstr ""
+
+msgctxt "#32100"
+msgid "Sign in and account details updated"
 msgstr ""

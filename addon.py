@@ -322,7 +322,7 @@ def ContextMenu(items,mediatype,list_id,tmdb_id):
 	if 'delete_list' in items and signin_status:
 		pluginpath = BuildPluginUrl({'mode':'account','action':'delete_list','list_id':list_id})
 		menu.append((_xbmc._AddonLocalStr(__addon__,32044),f'RunPlugin({pluginpath})',))
-	if 'edit_lists' in items and signin_status:
+	if 'edit_lists' in items and signin_status and mediatype == 'movie':
 		pluginpath = BuildPluginUrl({'mode':'account','action':'edit_lists','media_type':mediatype,'tmdbid':tmdb_id})
 		menu.append((_xbmc._AddonLocalStr(__addon__,32045),f'RunPlugin({pluginpath})',))
 	if 'delete_listitem' in items and signin_status:
@@ -639,7 +639,7 @@ def RecomendGetList(callurl,next_submenu,_type,page,prev_submenu,prev_type,media
 		li = _xbmc.ListitemTMDBitem(r,True)
 		title = li.getLabel()
 		li.setLabel(f'{_xbmc._AddonLocalStr(__addon__,32073)}')
-		contextitems = ContextMenu(['favorite','watchlist','edit_lists'],mediatype,None,tmdbID)
+		contextitems = ContextMenu(['favorite','watchlist','edit_lists','rate'],mediatype,None,tmdbID)
 		li.addContextMenuItems(contextitems)
 		AddDir({
 			'callurl':f'movie/{tmdbID}/recommendations',
@@ -791,7 +791,7 @@ def tmdbGetList(callurl,next_submenu,_type,page,prev_submenu,prev_type,mediatype
 	for r in results:
 		tmdbID = r.get('id')
 		li = _xbmc.ListitemTMDBitem(r,True)
-		contextitems = ContextMenu(['favorite','watchlist','edit_lists'],mediatype,None,tmdbID)
+		contextitems = ContextMenu(['favorite','watchlist','edit_lists','rate'],mediatype,None,tmdbID)
 		li.addContextMenuItems(contextitems)
 		AddDir({
 			'submenu':next_submenu,
@@ -814,6 +814,7 @@ def tmdbGetList(callurl,next_submenu,_type,page,prev_submenu,prev_type,mediatype
 def tmdbGetListDetails(callurl,page):
 	tmdbapi = TMDB_API(addon_settings.getString('tmdb.api.token'))
 	data = tmdbapi.GetList(callurl,page)
+	_xbmc.Log(data)
 	items = data.get('items')
 	list_id = data.get('id')
 	totalpages = data.get('total_pages')
@@ -827,7 +828,7 @@ def tmdbGetListDetails(callurl,page):
 		AddDir({'submenu':'getvideo','type':'tmdb_api_call','tmdbid':tmdbID,'mediatype':media_type},li,True)
 	if page and newpage <= totalpages:
 		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}',icon=GetIconPath('path/nextpage.png'),fanart=_xbmc._AddonInfo(__addon__,'fanart'))
-		AddDir({'submenu':'usertmdb','type':'tmdbgetlistdetails','page':newpage,'callurl':callurl},li,True)
+		AddDir({'submenu':'tmdbgetlistdetails','type':'usertmdb','page':newpage,'callurl':callurl},li,True)
 	xbmcplugin.endOfDirectory(addon_handle)
 
 
@@ -842,16 +843,16 @@ def tmdbGetLists(callurl,page,path):
 	totalpages = data.get('total_pages')
 	newpage = page+1
 	li = _xbmc.ListItemBasic(_xbmc._AddonLocalStr(__addon__,32028),icon=GetIconPath('path/add.png'),fanart=_xbmc._AddonInfo(__addon__,'fanart'))
-	AddDir({'submenu':'usertmdb','type':'addlist'},li,False)
+	AddDir({'submenu':'addlist','type':'usertmdb'},li,False)
 	for r in results:
 		li = _xbmc.ListItemTMDBList(r,True)
 		list_id = r.get('id')
 		contextitems = ContextMenu(['clear_list','delete_list'],None,list_id,None)
 		li.addContextMenuItems(contextitems)
-		AddDir({'submenu':'usertmdb','type':'tmdbgetlistdetails','callurl':path.format(list_id=list_id),'listid':list_id},li,True)
+		AddDir({'submenu':'tmdbgetlistdetails','type':'usertmdb','callurl':path.format(list_id=list_id),'listid':list_id},li,True)
 	if page and newpage <= totalpages:
 		li = _xbmc.ListItemBasic(f'{_xbmc._AddonLocalStr(__addon__,32014)} {newpage}/{totalpages}',icon=GetIconPath('path/nextpage.png'),fanart=_xbmc._AddonInfo(__addon__,'fanart'))
-		AddDir({'submenu':'usertmdb','type':'tmdbGetList','page':newpage,'callurl':callurl},li,True)
+		AddDir({'submenu':'tmdbgetList','type':'usertmdb','page':newpage,'callurl':callurl},li,True)
 	xbmcplugin.endOfDirectory(addon_handle)
 
 

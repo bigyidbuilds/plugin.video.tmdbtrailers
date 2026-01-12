@@ -10,6 +10,42 @@
 		<top>0</top>
 	</coordinates>
 	<controls>
+		<control type="button" id="1">
+			<description>user animator</description>
+			<width>1</width>
+			<height>1</height>
+			<left>-100</left>
+			<top>-100</top>
+			<texturefocus>button.png</texturefocus>
+			<texturenofocus>button.png</texturenofocus>
+			<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+			<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+			<visible>true</visible>
+		</control>
+		<control type="button" id="2">
+			<description>notification dialog animator</description>
+			<width>1</width>
+			<height>1</height>
+			<left>-100</left>
+			<top>-100</top>
+			<texturefocus>button.png</texturefocus>
+			<texturenofocus>button.png</texturenofocus>
+			<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+			<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+			<visible>true</visible>
+		</control>
+		<control type="button" id="3">
+			<description>lists list animator</description>
+			<width>1</width>
+			<height>1</height>
+			<left>-100</left>
+			<top>-100</top>
+			<texturefocus>button.png</texturefocus>
+			<texturenofocus>button.png</texturenofocus>
+			<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.nofocus.color)]</textcolor>
+			<focusedcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.button.text.focus.color)]</focusedcolor>
+			<visible>true</visible>
+		</control>
 		<control type="group" id="1000">
 			<width>100%</width>
 			<height>100%</height>
@@ -57,7 +93,9 @@
 				<top>-5</top>
 				<texturefocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.close.focus.color)">close.png</texturefocus>
 				<texturenofocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.close.nofocus.color)">close.png</texturenofocus>
-				<ondown>2000</ondown>
+				<ondown condition="!Control.IsVisible(3)">2000</ondown>
+				<ondown condition="Control.IsVisible(3)">5000</ondown>
+				<onleft>3000</onleft>
 			</control>
 			<control type="group">
 				<left>0</left>
@@ -85,6 +123,8 @@
 			<top></top>
 			<width>600</width>
 			<height></height>
+			<animation effect="slide" start="700,0" time="500">Visible</animation>
+			<animation effect="slide" end="700,0" time="500">Hidden</animation>
 			<focusposition>0</focusposition>
 			<movement>17</movement>
 			<onup>1004</onup>
@@ -92,7 +132,8 @@
 			<onright>2001</onright>
 			<orientation>vertical</orientation>
 			<pagecontrol>2001</pagecontrol>
-			<visible>!Control.IsVisible(4000)</visible>
+			<visible>!Control.IsVisible(2)</visible>
+			<visible>!Control.IsVisible(3)</visible>
 			<itemlayout width="600" height="50">
 				<control type="image">
 					<left>0</left>
@@ -136,7 +177,7 @@
 				<control type="label">
 					<animation type="Focus">
 						<effect type="zoom" end="110,100" center="auto" time="200"/>
-						<effect type="slide" end="-30,0" time="200"/>
+						<effect type="slide" end="-25,0" time="200"/>
 					</animation>
 					<left>0</left>
 					<top>5</top>
@@ -156,7 +197,7 @@
 			<top>100</top>
 			<width>10</width>
 			<height>900</height>
-			<visible>Integer.IsGreater(Container(2000).NumItems,18)</visible>
+			<visible>Integer.IsGreater(Container(2000).NumItems,18)+Control.IsVisible(2000)</visible>
 			<texturesliderbackground colordiffuse="black">button.png</texturesliderbackground>
 			<texturesliderbar colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturesliderbar>
 			<texturesliderbarfocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturesliderbarfocus>
@@ -203,6 +244,8 @@
 		</control>
 		<control type="grouplist" id="3000">
 			<animation effect="slide" start="2000,0" time="2000">WindowOpen</animation>
+			<animation effect="slide" start="2000,0" time="2000" condition="Control.IsVisible(1)">Conditional</animation>
+			<animation effect="slide" end="2000,0" time="2000" condition="!Control.IsVisible(1)">Conditional</animation>
 			<left>10</left>
 			<top>1020</top>
 			<width>1900</width>
@@ -212,7 +255,8 @@
 			<scrolltime tween="sine" easing="out">200</scrolltime>
 			<orientation>horizontal</orientation>
 			<align>right</align>
-			<onup>2000</onup>
+			<onup condition="Control.IsVisible(2000)">2000</onup>
+			<onup condition="Control.IsVisible(5000)">5000</onup>
 			<control type="group">
 				<height>50</height>
 				<width>200</width>
@@ -327,24 +371,118 @@
 		</control>
 		<control type="group" id="4000">
 			<description>notification dialog</description>
-			<left>650</left>
-			<top>505</top>
-			<width>620</width>
+			<left>575</left>
+			<top>930</top>
+			<width>850</width>
 			<height>70</height>
+			<visible>Control.IsVisible(2)+!String.IsEmpty(Control.GetLabel(4001))</visible>
+			<animation effect="fade" start="0" time="200">Visible</animation>
+			<animation effect="fade" end="0" time="200">Hidden</animation>
 			<control type="image">
-				<texture colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.color)">black_background.png</texture>
+				<texture colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.header.color)">white_background.png</texture>
 				<bordertexture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.border.color)">white_background.png</bordertexture>
 				<bordersize>5</bordersize>
 			</control>
 			<control type="label" id="4001">
 				<left>10</left>
 				<top>10</top>
-				<width>600</width>
+				<width>830</width>
 				<height>50</height>
 				<align>center</align>
 				<aligny>center</aligny>
 				<textcolor>$INFO[Addon.SettingStr(plugin.video.tmdbtrailers,general.header.text.color)]</textcolor>
 				<font>font13</font>
+				<scroll>true</scroll>
+			</control>
+		</control>
+		<control type="group">
+			<left>660</left>
+			<top>160</top>
+			<height>750</height>
+			<visible>Control.IsVisible(3)</visible>
+			<control type="list" id="5000">
+				<width>600</width>
+				<onup>1004</onup>
+				<ondown>3000</ondown>
+				<orientation>vertical</orientation>
+				<pagecontrol>5001</pagecontrol>
+				<animation effect="fade" start="0" time="200" delay="500">Visible</animation>
+				<animation effect="fade" end="0" time="200">Hidden</animation>
+				<itemlayout width="600" height="50">
+					<control type="image">
+						<left>0</left>
+						<top>5</top>
+						<width>600</width>
+						<height>45</height>
+						<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texture>
+					</control>
+					<control type="label">
+						<left>5</left>
+						<top>5</top>
+						<width>590</width>
+						<height>40</height>
+						<font>font13</font>
+						<aligny>center</aligny>
+						<align>left</align>
+						<label>$INFO[ListItem.Label]</label>
+					</control>
+				</itemlayout>
+				<focusedlayout width="600" height="50">
+					<control type="image">
+						<animation type="Focus">
+							<effect type="zoom" end="110,100" center="auto" time="200"/>
+							<effect type="slide" end="-30,0" time="200"/>
+						</animation>
+						<left>0</left>
+						<top>5</top>
+						<width>600</width>
+						<height>45</height>
+						<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texture>
+						<visible>Control.HasFocus(5000)</visible>
+					</control>
+					<control type="image">
+						<left>0</left>
+						<top>5</top>
+						<width>600</width>
+						<height>45</height>
+						<texture border="5" colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texture>
+						<visible>!Control.HasFocus(5000)</visible>
+					</control>
+					<control type="label">
+						<animation type="Focus">
+							<effect type="zoom" end="110,100" center="auto" time="200"/>
+							<effect type="slide" end="-25,0" time="200"/>
+						</animation>
+						<left>0</left>
+						<top>5</top>
+						<width>590</width>
+						<height>40</height>
+						<font>font13</font>
+						<aligny>center</aligny>
+						<align>left</align>
+						<label>$INFO[ListItem.Label]</label>
+						<scroll>true</scroll>
+					</control>
+				</focusedlayout>
+			</control>
+			<control type="scrollbar" id="5001">
+				<description>slider control</description>
+				<left>620</left>
+				<width>10</width>
+				<visible>Integer.IsGreater(Container(5000).NumItems,15)+Control.IsVisible(5000)</visible>
+				<texturesliderbackground colordiffuse="black">button.png</texturesliderbackground>
+				<texturesliderbar colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.nofocus.color)">button.png</texturesliderbar>
+				<texturesliderbarfocus colordiffuse="Addon.SettingStr(plugin.video.tmdbtrailers,general.button.focus.color)">button.png</texturesliderbarfocus>
+				<info></info>
+				<action></action>
+				<controloffsetx></controloffsetx>
+				<controloffsety></controloffsety>
+				<pulseonselect></pulseonselect>
+				<orientation>vertical</orientation>
+				<onup>1004</onup>
+				<ondown>3000</ondown>
+				<onleft>5000</onleft>
+				<onright></onright>
 			</control>
 		</control>
 	</controls>
